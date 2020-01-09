@@ -4,31 +4,51 @@
   
   <url>
     <loc>/blog/</loc>
-    <lastmod>2019-12-10T16:40:42-07:00</lastmod>
+    <lastmod>2020-01-09T11:25:30-07:00</lastmod>
   </url>
   
   <url>
     <loc>/categories/</loc>
-    <lastmod>2019-12-10T16:40:42-07:00</lastmod>
+    <lastmod>2020-01-09T11:25:30-07:00</lastmod>
   </url>
   
   <url>
-    <loc>/categories/personal/</loc>
-    <lastmod>2019-12-10T16:40:42-07:00</lastmod>
+    <loc>/getting-stats-in-shape-update-mechanics/</loc>
+    <lastmod>2020-01-09T11:25:30-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/series/getting-your-stats-in-shape/</loc>
+    <lastmod>2020-01-09T11:25:30-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/series/</loc>
+    <lastmod>2020-01-09T11:25:30-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tags/statistics/</loc>
+    <lastmod>2020-01-09T11:25:30-07:00</lastmod>
   </url>
   
   <url>
     <loc>/</loc>
-    <lastmod>2019-12-10T16:40:42-07:00</lastmod>
+    <lastmod>2020-01-09T11:25:30-07:00</lastmod>
   </url>
   
   <url>
     <loc>/tags/</loc>
-    <lastmod>2019-12-10T16:40:42-07:00</lastmod>
+    <lastmod>2020-01-09T11:25:30-07:00</lastmod>
   </url>
   
   <url>
     <loc>/categories/technology/</loc>
+    <lastmod>2020-01-09T11:25:30-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/categories/personal/</loc>
     <lastmod>2019-12-10T16:40:42-07:00</lastmod>
   </url>
   
@@ -49,10 +69,6 @@
   
   <url>
     <loc>/books/</loc>
-  </url>
-  
-  <url>
-    <loc>/series/</loc>
   </url>
   
 </urlset>

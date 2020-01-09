@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="generator" content="Hugo 0.60.1" />
+    
+    <link rel="stylesheet" href="/css/skeleton.css">
+    
+    
+    <title>Getting Stats in Shape: Update Mechanics (1) | stochasmos</title>
+    <style>
+    @import url('https://fonts.googleapis.com/css?family=Raleway|Questrial&display=swap');
+    body {
+        font-family: "Questrial";       
+        font-size: 16px; 
+    }
+    a {
+        color: black;
+    }
+    #nav a {
+      font-size: 13pt;  
+      display: block;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    #nav-container {
+        border-bottom: 1px solid #212529;
+    }
+    #nav-border {      
+      display: table;
+      margin: 0 auto;
+      text-align: center;      
+    }
+    .font-125 {
+      font-size: 125%;
+    }
+    img {
+      max-width: 100%;
+    }    
+    #nav ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;        
+    }
+    #nav li {
+        display: inline-block;
+        height: 100%;
+    }
+    #nav li:hover {
+        background-color: lightgray;
+    }
+
+    .sitelink {
+        text-decoration: none;
+        font-size:32px;
+    }
+    .sitelink:hover{
+        color:black;
+    }
+    .container {
+        border-bottom:thin solid black;
+    }
+</style>
+  </head>
+  <body>
+    <div class="container" id="nav-container">
+    <div id="sitetitle"><a href="/" class="sitelink">stochasmos</a></div>
+<div id="nav-border">    
+    <ul id="nav">
+     
+      <li><a href="/blog/">blog</a></li>
+     
+      <li><a href="/categories/">categories</a></li>
+     
+      <li><a href="/tags/">tags</a></li>
+     
+      <li><a href="/series/">series</a></li>
+    
+    </ul>
+ </div>
+    </div>
+    <div class="container">
+      <main id="main">
+       
+
+<h1>Getting Stats in Shape: Update Mechanics (1)</h1>
+
+  
+  
+
+    <time datetime="2020-01-09">Jan 9, 2020</time>
+
+      
+      
+      
+  <span style="text-transform: lowercase;margin-left:25px;">Categories</span>:
+  <a href="/categories/technology">technology</a>
+
+      
+      
+      
+  <span style="text-transform: lowercase;margin-left:25px;">Series</span>:
+  <a href="/series/getting-your-stats-in-shape">getting your stats in shape</a>
+
+      
+      
+      
+  <span style="text-transform: lowercase;margin-left:25px;">Tags</span>:
+  <a href="/tags/statistics">statistics</a>
+
+
+
+<br><br>
+<p>This year I've decided to blog more. Mostly for me. I need a place to dump my thoughts. I don't normally have the stamina to pull off a blog series, but I'm hoping to do this series as a means of documenting my learning process for myself - and you're invited.</p>
+<p>Ever since I got rejected for a job (7 years ago) because I lacked experience with SQL Server statistics, I've made it a personal mission to learn about them as best I could. There are people who know more about them than I do, and people that are more well-respected than I am who really know their stuff on how the optimizer works and how to use statistics. I tend to chase rabbit trails and sometimes those trails lead me to some interesting discoveries.</p>
+<p>I've posted in the past (deleted posts) about stats maintenance and trying to optimize your statistics and my approach has always been from a maintenance and administration perspective. I'm nuancing that, a bit, with some things I've read about statistics (the mathematical discipline).</p>
+<h2 id="stats-updates">Stats Updates</h2>
+<p>The foundation of stats maintenance is updating statistics. We can update stats manually, using <code>UPDATE STATISTICS</code> and the engine will also automatically update stats (on by default) based on the number of modifications to the lead column that is present in the stat. Up until SQL Server 2014, it was a feat of logic (and some interpretation) to determine if a stat was considered out-of-date. That logic was (<!-- raw HTML omitted -->source<!-- raw HTML omitted -->):</p>
+<p>A statistics object is considered out of date in the following cases:</p>
+<ol>
+<li>If the statistics is defined on a regular table, it is out of date if:
+<ol>
+<li>The table size has gone from 0 to &gt;0 rows.</li>
+<li>The number of rows in the table when the statistics were gathered was 500 or less, and the colmodctr of the leading column of the statistics object has changed by more than 500 since then.</li>
+<li>The table had more than 500 rows when the statistics were gathered, and the colmodctr of the leading column of the statistics object has changed by more than 500 + 20% of the number of rows in the table when the statistics were gathered.</li>
+</ol>
+</li>
+<li>If the statistics object is defined on a temporary table, it is out of date as discussed above, except that there is an additional threshold for recomputation at 6 rows, with a test otherwise identical to test 2 in the previous list.</li>
+</ol>
+<p>Many words were typed and much hand-wringing was done over point 1.3, but with the arrival of more modern storage and processing hardware, the stats update threshold became increasingly insignificant given the cost of scanning a low-cardinality table. The threshold for SQL Server 2014 was changed for larger table sizes to the formula <code>sqrt(1000*&lt;table_cardinality&gt;)</code>.</p>
+<p>There's more to this story, though. According to <!-- raw HTML omitted -->this article<!-- raw HTML omitted --> from 2008 by Conor Cunningham, the sampling &ldquo;isn't entirely random&rdquo;- the same pages are read each time stats are updated. This opens a whole set of questions for me that I'd like to answer in order to understand the process of updating stats:</p>
+<ol>
+<li>Is this still the case as of SQL Server 2019?</li>
+<li>Does this change with different types of column modifications (Inserts, Updates, Deletes)?</li>
+<li>How does sample rate affect the pages read?</li>
+</ol>
+<h3 id="which-pages-does-sql-server-sample-in-2019">Which Pages Does SQL Server Sample in 2019?</h3>
+<p>This is a fairly straightforward test (I'm using a specific statistic from a classical languages database that I use to pursue other interests). I'm going to create a basic Extended Event session to monitor page reads:</p>
+<pre><code>create event session [page_read] on server
+    add event physical_page_read (action (sql_text) where database_id = 5)
+    ,add event auto_stats (action (sql_text) where database_id  = 5)
+    add target event_file(set filename='stats_update_page_reads.xel',max_rollover_files=20)
+    with (track_causality = on)
+</code></pre><p>Then I run the stats updates 10 times:</p>
+<pre><code>dbcc dropcleanbuffers
+go        
+alter event session [page_read] on SERVER
+    state = start;
+go
+update statistics rawdata.parsed_treebank ([_WA_Sys_00000008_3FD07829]);
+go
+alter event session [page_read] on SERVER
+    state = stop;
+go
+</code></pre><p>I drop the clean buffers because I'm trying to see pages being read and I couldn't find an event that gave me visibilty into logical page reads, just the physical reads, so I wanted to ensure I'm tracking all the pages.</p>
+<p>Parse the XE file</p>
+<pre><code>select 
+    run_id = dense_rank() over (order by file_name)
+    ,timestamp_utc
+    ,event_name
+    ,page_id = event_data.value('(/event/data[@name=&quot;page_id&quot;])[1]','bigint')
+    ,file_id = event_data.value('(/event/data[@name=&quot;file_id&quot;])[1]','bigint')
+    ,sql = event_data.value('(/event/action[@name=&quot;sql_text&quot;])[1]','nvarchar(max)')
+    ,activity_id = cast(left(event_data.value('(/event/action[@name=&quot;attach_activity_id&quot;])[1]','nvarchar(64)'),36) as uniqueidentifier)
+    ,event_sequence_id = cast(right(event_data.value('(/event/action[@name=&quot;attach_activity_id&quot;])[1]','nvarchar(64)'),len(event_data.value('(/event/action[@name=&quot;attach_activity_id&quot;])[1]','nvarchar(64)'))-37) as integer)    
+into #page_reads
+from (
+        select 
+            timestamp_utc
+            ,event_name = object_name
+            ,event_data = cast(event_data as xml)
+            ,file_name
+        from sys.fn_xe_file_target_read_file('stats_update_*',null,null,null)
+) base
+
+</code></pre><p>Now for some quick discovery:</p>
+<pre><code>select run_id,  run_page_reads = count_big(1)
+from #page_reads
+where file_id = 1
+group by run_id
+order by run_id
+</code></pre><p>Right away I can see that there is some variance in the reads (µ = 14086, σ = 78.572):</p>
+<table>
+<thead>
+<tr>
+<th>run_id</th>
+<th>run_page_reads</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>14096</td>
+</tr>
+<tr>
+<td>2</td>
+<td>14096</td>
+</tr>
+<tr>
+<td>3</td>
+<td>13852</td>
+</tr>
+<tr>
+<td>4</td>
+<td>14120</td>
+</tr>
+<tr>
+<td>5</td>
+<td>14120</td>
+</tr>
+<tr>
+<td>6</td>
+<td>14120</td>
+</tr>
+<tr>
+<td>7</td>
+<td>14112</td>
+</tr>
+<tr>
+<td>8</td>
+<td>14120</td>
+</tr>
+<tr>
+<td>9</td>
+<td>14120</td>
+</tr>
+<tr>
+<td>10</td>
+<td>14104</td>
+</tr>
+</tbody>
+</table>
+<p>Next I'll remove outliers (apologies to Aaron Bertrand for the <code>BETWEEN</code>).</p>
+<pre><code>select run_id,  run_page_reads = count_big(1)
+from #page_reads pr
+    cross apply (
+        select 
+        stdev = stdevp(1.*run_page_reads)
+        ,mean = avg(1.*run_page_reads)
+        ,u_bound = avg(1.*run_page_reads)+(2*stdevp(1.*run_page_reads))
+        ,l_bound = avg(1.*run_page_reads)-(2*stdevp(1.*run_page_reads))
+    from (
+    select run_id,  run_page_reads = count_big(1)
+    from #page_reads
+    where file_id = 1
+    group by run_id
+    ) base
+) ss
+where file_id = 1 
+group by run_id,l_bound,u_bound
+having count_big(1) between l_bound and u_bound
+</code></pre><table>
+<thead>
+<tr>
+<th>run_id</th>
+<th>run_page_reads</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>14096</td>
+</tr>
+<tr>
+<td>2</td>
+<td>14096</td>
+</tr>
+<tr>
+<td>4</td>
+<td>14120</td>
+</tr>
+<tr>
+<td>5</td>
+<td>14120</td>
+</tr>
+<tr>
+<td>6</td>
+<td>14120</td>
+</tr>
+<tr>
+<td>7</td>
+<td>14112</td>
+</tr>
+<tr>
+<td>8</td>
+<td>14120</td>
+</tr>
+<tr>
+<td>9</td>
+<td>14120</td>
+</tr>
+<tr>
+<td>10</td>
+<td>14104</td>
+</tr>
+</tbody>
+</table>
+<p>Run 3 was an outlier. We don't know <em>why</em> but it was, statistically speaking, an outlier. However, the main observation is that we don't have a consistent number of page reads, though <em>half</em> of the runs have the same number of runs (making the mode = 14,120). This may all be extraneous information, but by looking at this information we can get a sense of the worthiness of pursuing a greater sample size of tests. For the sake of argument, let's do a bit more exploration:</p>
+<pre><code>select 
+page_id
+,tests_containing_page = count_big(distinct run_id)
+from #page_reads 
+group by page_id
+having count_big(distinct run_id) = 10
+</code></pre><p>This query shows me that 13,758 of the 14,098, or 97.588%, pages were read in <em>every</em> stats update (side note: there are 31,451 used pages in this table). Further analysis reveals that some pages are read twice per update (and, in some cases, every update run). Sometimes a page is skipped (2.412% of the time, in fact). I trust Conor's knowledge and perhaps some things with the specific mechanics have changed since 2008, but it doesn't seem possible to flatly declare that the exact same pages are read the exact same way each time. Additionally, this is a sterile test and not a real-world scenario, so there may be something about the nature of the test that causes some variations. With all of those disclaimers out of the way, that the same 97.588% of pages are read in every update, it seems like a safe generalization to say that Conor's assertion is still applicable.</p>
+<p>Tune in next time for when I explore: How do inserts/updates/deletes affect this?</p>
+
+
+
+      </main>
+    </div>
+    <div id="nav-border">    
+    <ul id="nav">    
+        <li><a href="https://github.com/swasheck">github</a></li>
+        <li><a href="index.xml">rss</a></li>
+    </ul>
+</div>
+    
+
+
+  
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-53285917-4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-53285917-4');
+</script>
+
+  </body>
+</html>

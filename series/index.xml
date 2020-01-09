@@ -5,6 +5,14 @@
 		<description>Recent content in series on stochasmos</description>
 		<generator>Hugo 0.60.1 -- gohugo.io</generator>
 		<language>en-us</language>
+		<lastBuildDate>Thu, 09 Jan 2020 11:25:30 -0700</lastBuildDate>
 		<atom:link href="/series/index.xml" rel="self" type="application/rss+xml" />
+		<item>
+			<title>getting your stats in shape</title>
+			<link>/series/getting-your-stats-in-shape/</link>
+			<pubDate>Thu, 09 Jan 2020 11:25:30 -0700</pubDate>
+			<guid isPermaLink="true">/series/getting-your-stats-in-shape/</guid>
+			<description></description>
+		</item>
 	</channel>
 </rss>
