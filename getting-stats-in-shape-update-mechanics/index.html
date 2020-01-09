@@ -297,14 +297,7 @@ having count_big(1) between l_bound and u_bound
 </tr>
 </tbody>
 </table>
-<p>Run 3 was an outlier. We don't know <em>why</em> but it was, statistically speaking, an outlier. However, the main observation is that we don't have a consistent number of page reads, though <em>half</em> of the runs have the same number of runs (making the mode = 14,120). This may all be extraneous information, but by looking at this information we can get a sense of the worthiness of pursuing a greater sample size of tests. For the sake of argument, let's do a bit more exploration:</p>
-<pre><code>select 
-page_id
-,tests_containing_page = count_big(distinct run_id)
-from #page_reads 
-group by page_id
-having count_big(distinct run_id) = 10
-</code></pre><p>This query shows me that 13,758 of the 14,098, or 97.588%, pages were read in <em>every</em> stats update (side note: there are 31,451 used pages in this table). Further analysis reveals that some pages are read twice per update (and, in some cases, every update run). Sometimes a page is skipped (2.412% of the time, in fact). I trust Conor's knowledge and perhaps some things with the specific mechanics have changed since 2008, but it doesn't seem possible to flatly declare that the exact same pages are read the exact same way each time. Additionally, this is a sterile test and not a real-world scenario, so there may be something about the nature of the test that causes some variations. With all of those disclaimers out of the way, that the same 97.588% of pages are read in every update, it seems like a safe generalization to say that Conor's assertion is still applicable.</p>
+<p>Run 3 was an outlier. We don't know <em>why</em> but it was, statistically speaking, an outlier. However, the main observation is that we don't have a consistent number of page reads, though <em>half</em> of the runs have the same number of runs (making the mode = 14,120). This may all be extraneous information, but by looking at this information we can get a sense of the worthiness of pursuing a greater sample size of tests. After doing a bit more exploration, I found that in my test case, 13,758 of the 14,098, or 97.588%, pages were read in <em>every</em> stats update (side note: there are 31,451 used pages in this table). Further analysis reveals that some pages are read twice per update (and, in some cases, every update run). Sometimes a page is skipped (2.412% of the time, in fact). I trust Conor's knowledge and perhaps some things with the specific mechanics have changed since 2008, but it doesn't seem possible to flatly declare that the exact same pages are read the exact same way each time. Additionally, this is a sterile test and not a real-world scenario, so there may be something about the nature of the test that causes some variations. With all of those disclaimers out of the way, that the same 97.588% of pages are read in every update, it seems like a safe generalization to say that Conor's assertion is still applicable.</p>
 <p>Tune in next time for when I explore: How do inserts/updates/deletes affect this?</p>
 
 
