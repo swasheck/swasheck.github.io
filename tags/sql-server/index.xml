@@ -1,12 +1,12 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
-		<title>statistics on stochasmos</title>
-		<link>/tags/statistics/</link>
-		<description>Recent content in statistics on stochasmos</description>
+		<title>sql server on stochasmos</title>
+		<link>/tags/sql-server/</link>
+		<description>Recent content in sql server on stochasmos</description>
 		<generator>Hugo 0.60.1 -- gohugo.io</generator>
 		<language>en-us</language>
 		<lastBuildDate>Thu, 09 Jan 2020 12:54:17 -0700</lastBuildDate>
-		<atom:link href="/tags/statistics/index.xml" rel="self" type="application/rss+xml" />
+		<atom:link href="/tags/sql-server/index.xml" rel="self" type="application/rss+xml" />
 		<item>
 			<title>Getting Stats in Shape Update Mechanics (Delete)</title>
 			<link>/getting-stats-in-shape-update-mechanics-insert/</link>

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/css/skeleton.css">
     
     
-    <title>getting your stats in shape | stochasmos</title>
+    <title>Getting Stats in Shape Update Mechanics (Delete) | stochasmos</title>
     <style>
     @import url('https://fonts.googleapis.com/css?family=Raleway|Questrial&display=swap');
     body {
@@ -85,12 +85,8 @@
       <main id="main">
        
 
-<h1>getting your stats in shape</h1>
+<h1>Getting Stats in Shape Update Mechanics (Delete)</h1>
 
-<p>
-  <a class="font-125" href="/getting-stats-in-shape-update-mechanics-insert/">Getting Stats in Shape Update Mechanics (Delete)</a>
-  <br>
-  
   
   
 
@@ -117,39 +113,48 @@
 
 
 
-</p>
-
-<p>
-  <a class="font-125" href="/getting-stats-in-shape-update-mechanics/">Getting Stats in Shape: Update Mechanics (1)</a>
-  <br>
-  
-  
-  
-
-    <time datetime="2020-01-09">Jan 9, 2020</time>
-
-      
-      
-      
-  <span style="text-transform: lowercase;margin-left:25px;">Categories</span>:
-  <a href="/categories/technology">technology</a>
-
-      
-      
-      
-  <span style="text-transform: lowercase;margin-left:25px;">Series</span>:
-  <a href="/series/getting-your-stats-in-shape">getting your stats in shape</a>
-
-      
-      
-      
-  <span style="text-transform: lowercase;margin-left:25px;">Tags</span>:
-  <a href="/tags/statistics">statistics</a>
-  <a href="/tags/sql-server">sql server</a>
-
-
-
-</p>
+<br><br>
+<p><!-- raw HTML omitted -->Previously<!-- raw HTML omitted --> I investigated the page sampling of stats updates. One of the follow-up questions I have is whether or not write operations (and deletes, specifically) have an affect on the actual update mechanics of the stats update process. Specifically, I'm going to investigate if we can continue our generalized conclusion that the same pages are read each time.</p>
+<h2 id="summary-of-findings">Summary of Findings</h2>
+<p>To do this, I ran 10 tests of deletes of 268,384 rows from my table (the same one as in the last post) and captured the page reads from the ensuing stats updates (same exact process but the stats updates come after a delete). There was more variability on post-delete page reads. Based on my analysis in the previous post, I decided to cut to the chase and get a sense of how many pages were common to all 10 update runs. 12,436 of the 14,241 pages in all 10 runs were common (85.682%). This is substantially lower than simply repeatedly running stats updates on the same data set over and over.</p>
+<p>Inserts show even more variability with respect to page reads with only 10,050 of 22,737 pages (44.201%) common between all 10 runs.</p>
+<p>Let's take a look at our combined results:</p>
+<table>
+<thead>
+<tr>
+<th>test type</th>
+<th>distinct pages</th>
+<th>σ</th>
+<th>µ</th>
+<th>% common</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>no change</td>
+<td>14,098</td>
+<td>78.572</td>
+<td>14086</td>
+<td>97.588</td>
+</tr>
+<tr>
+<td>delete</td>
+<td>14,514</td>
+<td>320.962</td>
+<td>13811.400</td>
+<td>85.682</td>
+</tr>
+<tr>
+<td>insert</td>
+<td>22,737</td>
+<td>545.264</td>
+<td>12885.100</td>
+<td>44.201</td>
+</tr>
+</tbody>
+</table>
+<h2 id="so-what">So What?</h2>
+<p>Without getting into too much explanation as to the <em>why</em> behind how the numbers above occurred, they do make sense (though we'd need to look at page splits and allocations events). I have a very specific reason for investigating how the stats update process works. As I move along in my investigation of stats, I'm going to evaluate how well my statistics histogram reflects the overall distribution of the data. Jagged, &ldquo;spikey&rdquo; (multimodal) data, may not be accurately represented on the pages that are sampled - especially if they're nonvolatile.</p>
 
 
 

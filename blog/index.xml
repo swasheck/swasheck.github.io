@@ -5,8 +5,56 @@
 		<description>Recent content in blog on stochasmos</description>
 		<generator>Hugo 0.60.1 -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Thu, 09 Jan 2020 11:25:30 -0700</lastBuildDate>
+		<lastBuildDate>Thu, 09 Jan 2020 12:54:17 -0700</lastBuildDate>
 		<atom:link href="/blog/index.xml" rel="self" type="application/rss+xml" />
+		<item>
+			<title>Getting Stats in Shape Update Mechanics (Delete)</title>
+			<link>/getting-stats-in-shape-update-mechanics-insert/</link>
+			<pubDate>Thu, 09 Jan 2020 12:54:17 -0700</pubDate>
+			<guid isPermaLink="true">/getting-stats-in-shape-update-mechanics-insert/</guid>
+			<description>&lt;p&gt;&lt;!-- raw HTML omitted --&gt;Previously&lt;!-- raw HTML omitted --&gt; I investigated the page sampling of stats updates. One of the follow-up questions I have is whether or not write operations (and deletes, specifically) have an affect on the actual update mechanics of the stats update process. Specifically, I&#39;m going to investigate if we can continue our generalized conclusion that the same pages are read each time.&lt;/p&gt;
+&lt;h2 id=&#34;summary-of-findings&#34;&gt;Summary of Findings&lt;/h2&gt;
+&lt;p&gt;To do this, I ran 10 tests of deletes of 268,384 rows from my table (the same one as in the last post) and captured the page reads from the ensuing stats updates (same exact process but the stats updates come after a delete). There was more variability on post-delete page reads. Based on my analysis in the previous post, I decided to cut to the chase and get a sense of how many pages were common to all 10 update runs. 12,436 of the 14,241 pages in all 10 runs were common (85.682%). This is substantially lower than simply repeatedly running stats updates on the same data set over and over.&lt;/p&gt;
+&lt;p&gt;Inserts show even more variability with respect to page reads with only 10,050 of 22,737 pages (44.201%) common between all 10 runs.&lt;/p&gt;
+&lt;p&gt;Let&#39;s take a look at our combined results:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;test type&lt;/th&gt;
+&lt;th&gt;distinct pages&lt;/th&gt;
+&lt;th&gt;σ&lt;/th&gt;
+&lt;th&gt;µ&lt;/th&gt;
+&lt;th&gt;% common&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;no change&lt;/td&gt;
+&lt;td&gt;14,098&lt;/td&gt;
+&lt;td&gt;78.572&lt;/td&gt;
+&lt;td&gt;14086&lt;/td&gt;
+&lt;td&gt;97.588&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;delete&lt;/td&gt;
+&lt;td&gt;14,514&lt;/td&gt;
+&lt;td&gt;320.962&lt;/td&gt;
+&lt;td&gt;13811.400&lt;/td&gt;
+&lt;td&gt;85.682&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;insert&lt;/td&gt;
+&lt;td&gt;22,737&lt;/td&gt;
+&lt;td&gt;545.264&lt;/td&gt;
+&lt;td&gt;12885.100&lt;/td&gt;
+&lt;td&gt;44.201&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;so-what&#34;&gt;So What?&lt;/h2&gt;
+&lt;p&gt;Without getting into too much explanation as to the &lt;em&gt;why&lt;/em&gt; behind how the numbers above occurred, they do make sense (though we&#39;d need to look at page splits and allocations events). I have a very specific reason for investigating how the stats update process works. As I move along in my investigation of stats, I&#39;m going to evaluate how well my statistics histogram reflects the overall distribution of the data. Jagged, &amp;ldquo;spikey&amp;rdquo; (multimodal) data, may not be accurately represented on the pages that are sampled - especially if they&#39;re nonvolatile.&lt;/p&gt;
+</description>
+		</item>
 		<item>
 			<title>Getting Stats in Shape: Update Mechanics (1)</title>
 			<link>/getting-stats-in-shape-update-mechanics/</link>
