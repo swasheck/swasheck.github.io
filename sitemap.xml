@@ -4,12 +4,37 @@
   
   <url>
     <loc>/blog/</loc>
-    <lastmod>2020-01-09T12:54:17-07:00</lastmod>
+    <lastmod>2020-03-20T14:56:18-06:00</lastmod>
   </url>
   
   <url>
     <loc>/categories/</loc>
-    <lastmod>2020-01-09T12:54:17-07:00</lastmod>
+    <lastmod>2020-03-20T14:56:18-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tags/covid-19/</loc>
+    <lastmod>2020-03-20T14:56:18-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/covid19-the-first-week/</loc>
+    <lastmod>2020-03-20T14:56:18-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/categories/personal/</loc>
+    <lastmod>2020-03-20T14:56:18-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/</loc>
+    <lastmod>2020-03-20T14:56:18-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+    <lastmod>2020-03-20T14:56:18-06:00</lastmod>
   </url>
   
   <url>
@@ -38,16 +63,6 @@
   </url>
   
   <url>
-    <loc>/</loc>
-    <lastmod>2020-01-09T12:54:17-07:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tags/</loc>
-    <lastmod>2020-01-09T12:54:17-07:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/categories/technology/</loc>
     <lastmod>2020-01-09T12:54:17-07:00</lastmod>
   </url>
@@ -55,11 +70,6 @@
   <url>
     <loc>/getting-stats-in-shape-update-mechanics/</loc>
     <lastmod>2020-01-09T11:25:30-07:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/categories/personal/</loc>
-    <lastmod>2019-12-10T16:40:42-07:00</lastmod>
   </url>
   
   <url>
