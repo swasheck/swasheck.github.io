@@ -357,41 +357,17 @@ having count_big(1) between l_bound and u_bound
 			<guid isPermaLink="true">/2016-11-28-index-rebuild-reorg/</guid>
 			<description>&lt;p&gt;Recently, our index maintenance process was called into question on an Availability Group because it began running significantly longer than expected. The initial theory put forward by other groups was that this was due the Availability Group which is a 2+1 cluster (2 HA synchronous replicas, 1 asynchronous DR replica) and there was a commit delay. Our monitoring tool &lt;a href=&#34;https://sentryone.com&#34;&gt;SentryOne&lt;/a&gt; didn&#39;t alert us to any significant delays, but we committed to investigate the theory since it would be a good exercise for all involved. However, our priority was to actually investigate the objects and indexes on which maintenance was done. Because we log the process&amp;rsquo; details, we were able to identify that our process had progressively skewed toward reorganization and away from rebuild operations. Additionally, the larger of the largest of the indexes (by page count and row count) had become 100% reorganization operations.&lt;/p&gt;
 &lt;p&gt;Since nobody on our team was particularly familiar with the internals of each operation, I did a bit of research and came across &lt;a href=&#34;http://www.sqlpass.org/summit/2013/Sessions/SessionDetails.aspx?sid=5158&#34;&gt;Tim Chapman&#39;s 2013 Summit Index Internals Deep Dive presentation&lt;/a&gt;. In the slide deck I read a few things that provided some clues into what was occurring during our maintenance process. The first is that reorganization is always single-threaded (slide 29) and that reorganization &amp;ldquo;[g]enerates a LOT more t-log records than Rebuild.&amp;rdquo; Given this information, it would seem to make sense as to why our process had suddenly begun taking so much longer.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
 &lt;ol&gt;
 &lt;li&gt;Our larger tables were only being reorganized and not being rebuilt. Since reorganization is single-threaded, moving through high-page count tables on one thread would naturally take a bit longer.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;ol start=&#34;2&#34;&gt;
 &lt;li&gt;If what Tim said is true about t-log records, then there could potentially be a greater chance of log commit delay on the Availability Group, though it hadn&#39;t become problematic enough for us to experience a breach of our alert threshold.&lt;/li&gt;
 &lt;/ol&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
 &lt;p&gt;Certainly this is helpful information and served as a good initial response. However, we need to be able to come up with a better explanation, and we need to validate what we found on the Internet. To do this, I created a test scenario in which I&#39;d test the two operations on an index and see how the server responds. The process is as follows:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
 &lt;ol&gt;
 &lt;li&gt;Backup the database&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;ol start=&#34;2&#34;&gt;
 &lt;li&gt;Rebuild the candidate index&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;ol start=&#34;3&#34;&gt;
 &lt;li&gt;Restore the database&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;ol start=&#34;4&#34;&gt;
 &lt;li&gt;Reorganize the candidate index&lt;/li&gt;
 &lt;/ol&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
 &lt;p&gt;To monitor these processes I created an Extended Event session with many of the conceivable events that could be raised during the processes (I collected additional actions and filtered based on the database in question).&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;create event session XEIndexRebuild on server 
 	add event sqlos.wait_info,
