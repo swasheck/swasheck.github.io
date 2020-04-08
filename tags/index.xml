@@ -35,5 +35,19 @@
 			<guid isPermaLink="true">/tags/tsql-tuesday/</guid>
 			<description></description>
 		</item>
+		<item>
+			<title>extended events</title>
+			<link>/tags/extended-events/</link>
+			<pubDate>Mon, 28 Nov 2016 18:35:52 +0000</pubDate>
+			<guid isPermaLink="true">/tags/extended-events/</guid>
+			<description></description>
+		</item>
+		<item>
+			<title>index maintenance</title>
+			<link>/tags/index-maintenance/</link>
+			<pubDate>Mon, 28 Nov 2016 18:35:52 +0000</pubDate>
+			<guid isPermaLink="true">/tags/index-maintenance/</guid>
+			<description></description>
+		</item>
 	</channel>
 </rss>

@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="generator" content="Hugo 0.60.1" />
+    
+    <link rel="stylesheet" href="/css/skeleton.css">
+    
+    
+    <title>Index Maintenance and Availability Groups: Rebuild or ReOrg | stochasmos</title>
+    <style>
+    @import url('https://fonts.googleapis.com/css?family=Raleway|Questrial&display=swap');
+    body {
+        font-family: "Questrial";       
+        font-size: 16px; 
+    }
+    a {
+        color: black;
+    }
+    #nav a {
+      font-size: 13pt;  
+      display: block;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    #nav-container {
+        border-bottom: 1px solid #212529;
+    }
+    #nav-border {      
+      display: table;
+      margin: 0 auto;
+      text-align: center;      
+    }
+    .font-125 {
+      font-size: 125%;
+    }
+    img {
+      max-width: 100%;
+    }    
+    #nav ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;        
+    }
+    #nav li {
+        display: inline-block;
+        height: 100%;
+    }
+    #nav li:hover {
+        background-color: lightgray;
+    }
+
+    .sitelink {
+        text-decoration: none;
+        font-size:32px;
+    }
+    .sitelink:hover{
+        color:black;
+    }
+    .container {
+        border-bottom:thin solid black;
+    }
+</style>
+  </head>
+  <body>
+    <div class="container" id="nav-container">
+    <div id="sitetitle"><a href="/" class="sitelink">stochasmos</a></div>
+<div id="nav-border">    
+    <ul id="nav">
+     
+      <li><a href="/blog/">blog</a></li>
+     
+      <li><a href="/categories/">categories</a></li>
+     
+      <li><a href="/tags/">tags</a></li>
+     
+      <li><a href="/series/">series</a></li>
+    
+    </ul>
+ </div>
+    </div>
+    <div class="container">
+      <main id="main">
+       
+
+<h1>Index Maintenance and Availability Groups: Rebuild or ReOrg</h1>
+
+  
+  
+
+    <time datetime="2016-11-28">Nov 28, 2016</time>
+
+      
+      
+      
+  <span style="text-transform: lowercase;margin-left:25px;">Categories</span>:
+  <a href="/categories/technology">technology</a>
+
+      
+      
+      
+  <span style="text-transform: lowercase;margin-left:25px;">Tags</span>:
+  <a href="/tags/index-maintenance">index maintenance</a>
+  <a href="/tags/extended-events">extended events</a>
+
+
+
+<br><br>
+<p>Recently, our index maintenance process was called into question on an Availability Group because it began running significantly longer than expected. The initial theory put forward by other groups was that this was due the Availability Group which is a 2+1 cluster (2 HA synchronous replicas, 1 asynchronous DR replica) and there was a commit delay. Our monitoring tool <a href="https://sentryone.com">SentryOne</a> didn't alert us to any significant delays, but we committed to investigate the theory since it would be a good exercise for all involved. However, our priority was to actually investigate the objects and indexes on which maintenance was done. Because we log the process&rsquo; details, we were able to identify that our process had progressively skewed toward reorganization and away from rebuild operations. Additionally, the larger of the largest of the indexes (by page count and row count) had become 100% reorganization operations.</p>
+<p>Since nobody on our team was particularly familiar with the internals of each operation, I did a bit of research and came across <a href="http://www.sqlpass.org/summit/2013/Sessions/SessionDetails.aspx?sid=5158">Tim Chapman's 2013 Summit Index Internals Deep Dive presentation</a>. In the slide deck I read a few things that provided some clues into what was occurring during our maintenance process. The first is that reorganization is always single-threaded (slide 29) and that reorganization &ldquo;[g]enerates a LOT more t-log records than Rebuild.&rdquo; Given this information, it would seem to make sense as to why our process had suddenly begun taking so much longer.</p>
+<ul>
+<li>
+<ol>
+<li>Our larger tables were only being reorganized and not being rebuilt. Since reorganization is single-threaded, moving through high-page count tables on one thread would naturally take a bit longer.</li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li>If what Tim said is true about t-log records, then there could potentially be a greater chance of log commit delay on the Availability Group, though it hadn't become problematic enough for us to experience a breach of our alert threshold.</li>
+</ol>
+</li>
+</ul>
+<p>Certainly this is helpful information and served as a good initial response. However, we need to be able to come up with a better explanation, and we need to validate what we found on the Internet. To do this, I created a test scenario in which I'd test the two operations on an index and see how the server responds. The process is as follows:</p>
+<ul>
+<li>
+<ol>
+<li>Backup the database</li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li>Rebuild the candidate index</li>
+</ol>
+</li>
+<li>
+<ol start="3">
+<li>Restore the database</li>
+</ol>
+</li>
+<li>
+<ol start="4">
+<li>Reorganize the candidate index</li>
+</ol>
+</li>
+</ul>
+<p>To monitor these processes I created an Extended Event session with many of the conceivable events that could be raised during the processes (I collected additional actions and filtered based on the database in question).</p>
+<pre><code>create event session XEIndexRebuild on server 
+	add event sqlos.wait_info,
+	add event sqlserver.auto_stats,
+	add event sqlserver.databases_dbcc_logical_scan,
+	add event sqlserver.databases_log_flush,
+	add event sqlserver.degree_of_parallelism,
+	add event sqlserver.file_write_completed,
+	add event sqlserver.index_build_extents_allocation,
+	add event sqlserver.lock_released(set collect_resource_description=(1)),
+	add event sqlserver.locks_lock_waits,
+	add event sqlserver.object_altered,
+	add event sqlserver.oiblob_cleanup_end,
+	add event sqlserver.physical_page_read,
+	add event sqlserver.physical_page_write,
+	add event sqlserver.scan_stopped,
+	add event sqlserver.sql_batch_completed,
+	add event sqlserver.sql_batch_starting,
+	add event sqlserver.transaction_log
+add target package0.event_file(set filename=N'XEIndexRebuild')
+with (
+            max_memory=4096 kb,
+            event_retention_mode=allow_single_event_loss,
+            max_dispatch_latency=30 seconds,
+            max_event_size=0 kb,
+            memory_partition_mode=none,
+            track_causality=on,
+            startup_state=off
+    )
+go
+</code></pre><p><img src="https://swasheck.github.io/img/2016-11-28_transaction_log.png" alt="tlog usage"></p>
+<p>The test subject index is a nonclustered index with 37,108 pages and 1,904,887 rows on a SQL Server 2016 instance. Rebuilding this index generated 3.83 MB over 55,826 log records, while Reorganization generated 215.86 MB over 3,750,552 log records. On the same index with the same level of fragmentation, Reorganization generates many more log records (67.18 times more entries and 56.36 more data) to ship to secondaries. However, since this initial test was not done on an Availability Group, it's not entirely clear what impact the additional data has on the remote harden process with the synchronous replica.</p>
+<p><img src="https://swasheck.github.io/img/2016-11-28_reorg_reads_writes.png" alt="build sequence"></p>
+<p>A big reason for the log volume disparity is how each of these operations performs its task. Where Rebuild, &ldquo;drops and re-creates the index&rdquo;, Reorganize &ldquo;defragments the leaf level of clustered and nonclustered indexes on tables and views by physically reordering the leaf-level pages to match the logical, left to right, order of the leaf nodes&rdquo; and compacts the pages <a href="https://msdn.microsoft.com/en-us/library/ms189858.aspx">MSDN</a>. Tracking the transaction log and page reads using our event session, we can see the engine start reading index pages and read sequentially through the pages. It periodically opens a system transaction (seen in the <code>transaction_log</code> event) to write out the pages in their l-t-r sequence, confirming the MSDN documentation.</p>
+<p><img src="https://swasheck.github.io/img/2016-11-28_distinct_threads.png" alt="distinct threads"></p>
+<p>Finally, the other claim that we need to verify is that Reorganize is a single-threaded operation, while Rebuild can be parallel. It is possible to verify the claim that Reorganize is a single-threaded operation a few different ways. The first way I verified this was by counting the number of distinct system threads throughout the process. Additionally, I used the <code>degree_of_parallelism</code> event, but it was never fired for the Reorganize operation. The Rebuild operation did fire the <code>degree_of_parallelism</code> event with DOP of 4.</p>
+<p>I'll need to do more research to see how clustered indexes, clustered columnstore, and nonclustered columnstore indexes respond to these test conditions.</p>
+
+
+
+      </main>
+    </div>
+    <div id="nav-border">    
+    <ul id="nav">    
+        <li><a href="https://github.com/swasheck">github</a></li>
+        <li><a href="index.xml">rss</a></li>
+    </ul>
+</div>
+    
+
+
+  
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-53285917-4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-53285917-4');
+</script>
+
+  </body>
+</html>
