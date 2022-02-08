@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en"><head>
+    <title>&#34;Tracking&#34; SQL Server (and SQLSat #271 - ABQ)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="../../images/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        stochasmos
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    thoughts
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="about">about</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="posts">posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="categories">categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="http://github.com/swasheck" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://www.linkedin.com/in/swasheck" target="_blank">
+                            <i class="fab fa-linkedin-in fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">&#34;Tracking&#34; SQL Server (and SQLSat #271 - ABQ)</h3>
+            
+            <small class="text-muted">Published 2014-01-13</small>
+        </div>
+
+        <article>
+            <p>**
+Update
+I’ve noticed some range and scale issues so I took out the explicit schema creation (for now). For right now it just selects into a table, dropping the table if it already exists.
+**</p>
+<p>Back in October I had the opportunity to attend Jonathan Kehayias'<a href="http://www.sqlpass.org/summit/2013/Sessions/SessionDetails.aspx?sid=4606"> &ldquo;SQL Server Archaeology&rdquo;</a> presentation. I&rsquo;d been trying to wrap my brain around Extended Events for a while, but his presentation got me motivated to dive into the system_health Event Session.</p>
+<!-- raw HTML omitted -->
+<p>Additionally, I also decided to submit a presentation idea to <a href="http://www.sqlsaturday.com/271/eventhome.aspx">SQL Saturday #271</a> (Albuquerque, NM) titled, &ldquo;Extended Events In Real Life.&rdquo; The whole point of this presentation is to take some examples of ways that I&rsquo;ve used Extended Events to solve problems or gain insight into the processes on SQL Server. I&rsquo;m pretty excited (and a bit nervous) about this opportunity to speak.</p>
+<p>To this end, I&rsquo;ve also been given the opportunity to present a portion of &ldquo;XEIRL&rdquo; at our local <a href="http://denversql.org/">SQL Server User Group</a> this Thursday. This has accelerated both the nerves and the preparation. Since it&rsquo;s been a while since I&rsquo;ve posted anything, I figured I&rsquo;d post the demo scripts that I am going to be using in this user group presentation.</p>
+<p>Let&rsquo;s say that someone comes to you and says &ldquo;I wanted to tell you that &lsquo;the database&rsquo; was slow yesterday but never got a chance because my keyboard was abducted by aliens, my legs were sent off to NCAR for analysis of their impact on barometric pressure, and I was using my phone to get past level 239 of Candy Crush.&rdquo; What do you do? Hopefully you have a good monitoring tool (if you don&rsquo;t, I recommend <a href="http://sqlsentry.net/performance-advisor/sql-server-performance.asp">SQL Sentry Performance Advisor</a>) and you can get an idea of what happened. If you don&rsquo;t, or if you&rsquo;re like me and just like to figure out &ldquo;internals&rdquo; stuff, and you&rsquo;re on SQL Server 2012, then it could be system_health to the rescue.</p>
+<p>This session has been created by the product team to help troubleshoot potential performance issues on the database server. System_health <em>does</em> exist in SQL Server 2008, but XEs were fairly new and seem to be a somewhat incomplete implementation making that version inadequate. Most of our environment is 2012 so I&rsquo;ve been in luck with a more complete implementation of system_health. <a href="http://msdn.microsoft.com/en-us/library/ff877955(sql.110).aspx">Read up on it here</a>. In order to maintain some sembalence of brevity, let&rsquo;s cut to the chase. You want to see what happened. In the linked file (below), you can see the setup for how I handle the system_health data. I take the XML data from the event file and dump it into a temp table and then process the XML from this temp table. My brain thinks in terms of manageable chunks and this fit the bill.</p>
+<p>Now, what happened?
+One of the beautiful things about the 2012 version of system_health is the addition of sp_server_diagnostics output. This gives a snapshot of query processing, IO, system, and resource &ldquo;health&rdquo; (if you run the procedure independent of the event session you&rsquo;ll get a few more components) at the moment of execution. So first, let&rsquo;s look for any of these components that may be unhealthy:
+[code language=&ldquo;sql&rdquo;]
+select d.grp,a.* 
+from [system_health].[system_health_spsd] a
+join (
+select	
+ROW_NUMBER() OVER (ORDER BY event_timestamp) as grp,
+event_timestamp 
+from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+) d
+on a.event_timestamp &lt;= DATEADD(MINUTE,6,d.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,d.event_timestamp)
+where exists (select 1 from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+and a.event_timestamp &lt;= DATEADD(MINUTE,6,b.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,b.event_timestamp)
+);
+[/code]</p>
+<p>Using this as our base, we can even trend waits (I chose non-preemptive waits by count, but the same logic applies for any combination of preemptive and by duration waits) to get a better look at what was going on:
+[code language=&ldquo;sql&rdquo;]</p>
+<p>&ndash; QUERY PROCESSING IN WARNING STATE</p>
+<p>select d.grp,a.* 
+from [system_health].[system_health_spsd] a
+join (
+select	
+ROW_NUMBER() OVER (ORDER BY event_timestamp) as grp,
+event_timestamp 
+from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+) d
+on a.event_timestamp &lt;= DATEADD(MINUTE,6,d.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,d.event_timestamp)
+where exists (select 1 from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+and a.event_timestamp &lt;= DATEADD(MINUTE,6,b.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,b.event_timestamp)
+)</p>
+<p>&ndash; GET EVERYTHING SURROUNDING QP IN WARNING STATE
+select d.grp,a.* 
+from [system_health].[system_health_xlat] a
+join (
+select	
+ROW_NUMBER() OVER (ORDER BY event_timestamp) as grp,
+event_timestamp 
+from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+) d
+on a.event_timestamp &lt;= DATEADD(MINUTE,6,d.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,d.event_timestamp)
+where exists (select 1 from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+and a.event_timestamp &lt;= DATEADD(MINUTE,6,b.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,b.event_timestamp)
+)
+and event_name &lt;&gt; &lsquo;security_error_ring_buffer_recorded&rsquo;</p>
+<p>&ndash; WAITS ANALYSIS</p>
+<p>SELECT 
+grp, 
+event_sequence,
+spsd_component_state,
+event_timestamp,
+wait_type,
+waits, 	
+waits - LAG(waits,1,0) over (partition by grp,wait_type order by event_sequence) as wait_delta,
+CASE
+WHEN waits - LAG(waits,1,0) over (partition by grp,wait_type order by event_sequence) = waits
+AND LAG(waits,1,0) over (partition by grp,wait_type order by event_sequence) = 0
+THEN &lsquo;NEW WAIT&rsquo;
+WHEN waits - LAG(waits,1,0) over (partition by grp,wait_type order by event_sequence) &gt; 0
+THEN &lsquo;INCREASE&rsquo;
+WHEN waits - LAG(waits,1,0) over (partition by grp,wait_type order by event_sequence) &lt; 0
+THEN &lsquo;DECREASE&rsquo;
+WHEN waits - LAG(waits,1,0) over (partition by grp,wait_type order by event_sequence) = 0
+THEN &lsquo;NO CHANGE&rsquo;
+END as wait_delta_desc,
+avg_wait_time, 
+avg_wait_time - LAG(avg_wait_time,1,0) over (partition by grp,wait_type order by event_sequence) as avg_wait_time_delta,
+CASE
+WHEN avg_wait_time - LAG(avg_wait_time,1,0) over (partition by grp,wait_type order by event_sequence) = avg_wait_time
+AND LAG(avg_wait_time,1,0) over (partition by grp,wait_type order by event_sequence) = 0
+THEN &lsquo;NEW WAIT&rsquo;
+WHEN avg_wait_time - LAG(avg_wait_time,1,0) over (partition by grp,wait_type order by event_sequence) &gt; 0
+THEN &lsquo;INCREASE&rsquo;
+WHEN avg_wait_time - LAG(avg_wait_time,1,0) over (partition by grp,wait_type order by event_sequence) &lt; 0
+THEN &lsquo;DECREASE&rsquo;
+WHEN avg_wait_time - LAG(avg_wait_time,1,0) over (partition by grp,wait_type order by event_sequence) = 0
+THEN &lsquo;NO CHANGE&rsquo;
+END as avg_wait_time_delta_desc,
+max_wait_time, 
+max_wait_time - LAG(max_wait_time,1,0) over (partition by grp,wait_type order by event_sequence) as avg_wait_time_delta,
+CASE
+WHEN max_wait_time - LAG(max_wait_time,1,0) over (partition by grp,wait_type order by event_sequence) = max_wait_time
+AND LAG(max_wait_time,1,0) over (partition by grp,wait_type order by event_sequence) = 0
+THEN &lsquo;NEW WAIT&rsquo;
+WHEN max_wait_time - LAG(max_wait_time,1,0) over (partition by grp,wait_type order by event_sequence) &gt; 0
+THEN &lsquo;INCREASE&rsquo;
+WHEN max_wait_time - LAG(max_wait_time,1,0) over (partition by grp,wait_type order by event_sequence) &lt; 0
+THEN &lsquo;DECREASE&rsquo;
+WHEN max_wait_time - LAG(max_wait_time,1,0) over (partition by grp,wait_type order by event_sequence) = 0
+THEN &lsquo;NO CHANGE&rsquo;
+END as avg_wait_time_delta_desc
+FROM (</p>
+<pre><code>    select 
+        d.grp, 
+        DENSE_RANK() OVER (PARTITION BY d.grp ORDER BY a.event_timestamp) as event_sequence,
+        a.spsd_component,
+        a.spsd_component_state,
+        a.event_timestamp,
+        bc.n.value('@waitType','sysname') wait_type,
+        bc.n.value('@waits','bigint') waits,	
+        bc.n.value('@averageWaitTime','bigint') avg_wait_time,	
+        bc.n.value('@maxWaitTime','bigint') max_wait_time,	
+        event_data
+	from [system_health].[system_health_spsd] a
+	join (
+        select	
+            ROW_NUMBER() OVER (ORDER BY event_timestamp) as grp,
+            event_timestamp 
+        from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; 'CLEAN'
+	) d
+	on a.event_timestamp &lt;= DATEADD(MINUTE,6,d.event_timestamp)
+            and a.event_timestamp &gt;= DATEADD(MINUTE,-6,d.event_timestamp)
+	OUTER APPLY npwaits_bycount.nodes('/byCount/wait') bc(n)
+	where exists (select 1 from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; 'CLEAN'
+        and a.event_timestamp &lt;= DATEADD(MINUTE,6,b.event_timestamp)
+            and a.event_timestamp &gt;= DATEADD(MINUTE,-6,b.event_timestamp)
+            )
+        and a.spsd_component = 'QUERY_PROCESSING'
+) agg
+order by grp,event_sequence
+</code></pre>
+<p>&ndash; DEEPER DIVE INTO WAITS, WHERE THERE ANY RECORDED?
+&ndash; SOS_WORKER: Waiting for a thread
+&ndash; LCK_M_S: Typical locking/blocking
+select d.grp,a.* 
+from [system_health].[system_health_waits] a
+join (
+select	
+ROW_NUMBER() OVER (ORDER BY event_timestamp) as grp,
+event_timestamp 
+from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+) d
+on a.event_timestamp &lt;= DATEADD(MINUTE,6,d.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,d.event_timestamp)
+where exists (select 1 from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+and a.event_timestamp &lt;= DATEADD(MINUTE,6,b.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,b.event_timestamp)
+)</p>
+<p>&ndash;GO BACK AND CONFIRM THAT THERE WAS A BLOCKED PROCESS
+select d.grp,a.* 
+from [system_health].[system_health_spsd] a
+join (
+select	
+ROW_NUMBER() OVER (ORDER BY event_timestamp) as grp,
+event_timestamp 
+from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+) d
+on a.event_timestamp &lt;= DATEADD(MINUTE,6,d.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,d.event_timestamp)
+where exists (select 1 from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+and a.event_timestamp &lt;= DATEADD(MINUTE,6,b.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,b.event_timestamp)
+)</p>
+<p>&ndash; CHECK FOR ANY ERRORS
+select d.grp,a.* 
+from [system_health].[system_health_errors] a
+join (
+select	
+ROW_NUMBER() OVER (ORDER BY event_timestamp) as grp,
+event_timestamp 
+from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+) d
+on a.event_timestamp &lt;= DATEADD(MINUTE,6,d.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,d.event_timestamp)
+where exists (select 1 from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+and a.event_timestamp &lt;= DATEADD(MINUTE,6,b.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,b.event_timestamp)
+)</p>
+<p>&ndash; CHECK FOR DEADLOCKS
+select d.grp,a.* 
+from [system_health].[system_health_deadlocks] a
+join (
+select	
+ROW_NUMBER() OVER (ORDER BY event_timestamp) as grp,
+event_timestamp 
+from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+) d
+on a.event_timestamp &lt;= DATEADD(MINUTE,6,d.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,d.event_timestamp)
+where exists (select 1 from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+and a.event_timestamp &lt;= DATEADD(MINUTE,6,b.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,b.event_timestamp)
+)</p>
+<p>&ndash; FINALLY, CHECK THE RINGBUFFERS
+select d.grp,a.* 
+from [system_health].[system_health_ring_buffers] a
+join (
+select	
+ROW_NUMBER() OVER (ORDER BY event_timestamp) as grp,
+event_timestamp 
+from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+) d
+on a.event_timestamp &lt;= DATEADD(MINUTE,6,d.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,d.event_timestamp)
+where exists (select 1 from [system_health].[system_health_xlat] b where b.spsd_component_state &lt;&gt; &lsquo;CLEAN&rsquo;
+and a.event_timestamp &lt;= DATEADD(MINUTE,6,b.event_timestamp)
+and a.event_timestamp &gt;= DATEADD(MINUTE,-6,b.event_timestamp)
+)
+&ndash; I ELIMINATE security_error_ring_buffer_recorded api_name=&lsquo;ImpersonateSecurityContext&rsquo; because
+&ndash;	it&rsquo;s noisy and is only tellingvyou that it&rsquo;s still alive checking for security errors
+and event_name &lt;&gt; &lsquo;security_error_ring_buffer_recorded&rsquo;
+[/code]</p>
+<p>On and on and on you can go to further plumb the depths of what was happening at that time. You can look for deadlocks, errors, and analyze the output of ring buffers to really get a good idea of what was happening. I&rsquo;ve <a href="https://app.box.com/s/c32yqtqef9ep109th2vy">attached</a> all scripts so that you can have a good time seeing what you can get out of your system_health event session.</p>
+<p>**
+Update
+I&rsquo;ve noticed some range and scale issues so I took out the explicit schema creation (for now). For right now it just selects into a table, dropping the table if it already exists.</p>
+
+        </article>
+    </div>
+
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+            &copy; 2022, swasheck
+        
+        <br>
+        Powered by <a href="https://gohugo.io/" target="_blank">Hugo</a>
+        and <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+    </small>
+</footer>
+</body>
+</html>

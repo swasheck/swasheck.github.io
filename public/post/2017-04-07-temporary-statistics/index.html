@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en"><head>
+    <title>Temporary Statistics</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="../../images/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        stochasmos
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    thoughts
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="about">about</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="posts">posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="categories">categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="http://github.com/swasheck" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://www.linkedin.com/in/swasheck" target="_blank">
+                            <i class="fab fa-linkedin-in fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">Temporary Statistics</h3>
+            
+            <small class="text-muted">Published 2017-04-06</small>
+        </div>
+
+        <article>
+            <p>I am speaking on statistics in June at the <a href="https://denversql.org">Denver SQL Server User Group</a> but didn&rsquo;t really want to rehash much of the same old information that I&rsquo;ve heard in the past. There&rsquo;s a wealth of information about how to interpret stat headers, density vectors, and histograms. There&rsquo;s also been plenty of virtual ink spilled on when statistics are updated (if you have auto update enabled).</p>
+<p>One new(ish, to me) and interesting topic I stumbled across is the notion of temporary statistics. These are special statistics objects for a database that is participating in an AlwaysOn Availability Group, but located on a secondary server that is available for Read-Intent connections. Theoretically, if you&rsquo;re using a readable secondary then you&rsquo;re trying to shed at least some of your read workload from the primary. That workload would ostensibly carry a different workload and query planning could require access to statistics that are either missing or stale on the primary. To accomodate this situation, the SQL Server team creates temporary statistics that exist in tempdb for the read-only database.</p>
+<p>There exists <a href="https://docs.microsoft.com/en-us/sql/database-engine/availability-groups/windows/active-secondaries-readable-secondary-replicas-always-on-availability-groups#Read-OnlyStats">documentation</a> for statistics on read-only databases and Sunil Agarwal has <a href="https://blogs.msdn.microsoft.com/sqlserverstorageengine/2011/12/22/alwayson-challenges-with-statistics-on-readonly-database-database-snapshot-and-secondary-replica/">a couple</a> of <a href="https://blogs.msdn.microsoft.com/sqlserverstorageengine/2011/12/22/alwayson-making-latest-statistics-available-on-readable-secondary-read-only-database-and-database-snapshot/">good posts</a> that help to shed a bit more light on the topic. While most of my questions were technically already covered in these links, they were still topics that I wanted to examine for myself. For the purposes of these tests I&rsquo;m using a dataset that I created from <a href="https://earthquake.usgs.gov/earthquakes/search/">USGS Earthquake data</a>.</p>
+<p><strong>Test 1:</strong> <em>Automatically Create Statistics</em></p>
+<p>Statistics are created when the SQL Server engine recognizes a need for valid statistics that do not currently exist on a column, and when the database is configured to automatically create statistics (the default setting is &ldquo;on&rdquo;). As noted in the linked documents, statistics will be created on a readable secondary if statistics do not currently exist. On my clean <code>[earthquake]</code> database I run my favorite statistics-information-gathering query to identify statistics on the secondary database:</p>
+<pre tabindex="0"><code>use earthquake;
+go
+select 
+	schema_name = sh.name, 
+	table_name = t.name, 
+	stat_name = s.name, 
+	stats_columns = stuff ((
+							select ',' + c.name colname
+							from sys.stats_columns sc
+							join sys.columns c 
+								on c.column_id = sc.column_id
+									and c.object_id = sc.object_id
+							where sc.object_id = s.object_id
+								and sc.stats_id = s.stats_id
+							order by sc.stats_column_id
+							for xml path(''),type
+						).value('.','nvarchar(max)')
+						,1,1,''),
+	s.is_temporary,
+	spi.last_updated, 
+	spi.rows, 
+	spi.unfiltered_rows, 
+	spi.rows_sampled,
+	spi.modification_counter, 
+	spi.steps	
+from sys.stats s
+join sys.tables t 
+	on t.object_id = s.object_id
+join sys.schemas sh
+	on sh.schema_id = t.schema_id
+cross apply sys.dm_db_stats_properties_internal(s.object_id,s.stats_id) spi;
+</code></pre><p>and see these nice statistics appear. 
+<img src="https://swasheck.gitlab.io/fixed/2017-04-01-stats_pre.png" alt="prestats"></p>
+<p>If I run a query that forces statistics creation (earthquakes with a magnitude of at least 3.0 that occurred on a holiday and generated a &lsquo;Red&rsquo; alert):</p>
+<pre tabindex="0"><code>select 	
+	d.Date, 
+	t.Time,
+	e.EventTitle, 
+	e.Magnitude,
+	e.Alert
+from dbo.Event e 
+join dbo.Times t 
+	on e.EventTimeID = t.TimeID
+join dbo.Dates d 
+	on e.EventDateID = d.DateID
+where 
+	e.Magnitude &gt;= 3
+	and e.Alert = 'red'
+	and d.IsHoliday = 1
+order by d.Date,t.Time
+option (recompile);
+</code></pre><p>and see these nice temporary statistics appear.</p>
+<p><img src="https://swasheck.gitlab.io/fixed/2017-04-01-temp_stats.png" alt="prestats"></p>
+<p>The documentation didn&rsquo;t lie. We have temporary statistics and they all have <code>_readonly_database_statistics</code> appended to their names.</p>
+<p><strong>Test 2:</strong> <em>Updating Autocreated Temporary Statistics</em></p>
+<p>Having successfully created temporary statistics, we can now explore their update patterns.</p>
+<p>A manual statistics update attempt</p>
+<pre tabindex="0"><code>update statistics dbo.event(_WA_Sys_00000008_0F975522_readonly_database_statistics) with fullscan
+</code></pre><p>results in:</p>
+<pre tabindex="0"><code>Msg 3906, Level 16, State 13, Line 133
+Failed to update database &quot;earthquake&quot; because the database is read-only.
+</code></pre><p>That&rsquo;s to be expected, based on the documentation. Additionally, per the documentation, I can drop temporary statistics</p>
+<pre tabindex="0"><code>drop statistics dbo.Event._WA_Sys_00000004_108B795B_readonly_database_statistics; --EventDateID
+</code></pre><pre tabindex="0"><code>Command(s) completed successfully.
+</code></pre><p><strong>Test 2.2:</strong> <em>More Updating Autocreated Temporary Statistics</em></p>
+<p>A column on the primary takes enough changes to trigger a stats update, but no statistics are present on the primary. However, an auto-created, temporary statistic exists on the readable secondary. What happens?</p>
+<p>First we make changes to the primary:</p>
+<pre tabindex="0"><code>update dbo.Event
+	set Magnitude = Magnitude+10
+</code></pre><p><img src="https://swasheck.gitlab.io/fixed/2017-04-01-mod_stats.png" alt="mod"></p>
+<p>We see that modifications <em>are</em> reflected on the secondary so now we set about running our query again. Because, in my mind, there is the very real possibility that <em>if</em> the statistics are updated it&rsquo;s a drop and recreate behind the scenes, I decided to watch the activity with the <code>auto_stats</code> Extended Event session.</p>
+<pre tabindex="0"><code>create event session [stat_load] on server 
+add event sqlserver.auto_stats(
+    action(sqlserver.sql_text)
+    where ([database_id]=(10)))
+    add target package0.event_file(set filename=N'stat_load')
+    with (event_retention_mode=allow_single_event_loss,track_causality=on)
+go
+</code></pre><p><img src="https://swasheck.gitlab.io/fixed/2017-04-01-updated_stats.png" alt="mod"></p>
+<p>Upon completion of the earlier earthquake query, we can look at the statistics again and see that the statistic has a more recent last update time than the others. Additionally, the statistic that we dropped was also recreated with roughly the same time. The <code>auto_stats</code> event session is helpful in this situation.</p>
+<p><img src="https://swasheck.gitlab.io/fixed/2017-04-01-auto_stats.png" alt="mod"></p>
+<p>What we see is that the statistic on the <code>[Magnitude]</code> column (red box) was, in fact, updated, while the statistic on <code>[EventDateID]</code> column (blue box) was created. If the former statistic was simply dropped and re-created, we would expect to see the same &ldquo;Created:&rdquo; sequence for that statistic as well.</p>
+<p><strong>Test 3:</strong> <em>Overlapping AutoCreated Statistics</em></p>
+<p>Assume the statistics created in Test 2 are present on the secondary and the primary takes a read that creates an analogous statistic on the primary. We already know, based on the documentation, that statistic will be shipped to the secondary, so we will have a duplicate statistic on the secondary. We also already know that the newer statistic will be used in any future query planning on the secondary. However, are there any differences in the salient metrics for each of these autostats?</p>
+<p><img src="https://swasheck.gitlab.io/fixed/2017-04-01-primary_auto.png" alt="mod"></p>
+<p>As expected, statistics are automatically created on the primary and appear on the secondary. Additionally, we see that they have the same sample rate as both the primary statistic, and the temporary statistics created earlier.</p>
+<p><img src="https://swasheck.gitlab.io/fixed/2017-04-01-primary_secondary.png" alt="mod"></p>
+<p>If we look at the statistics objects' information, we see identical (except for time) stat headers and density vectors. Additionally, the histograms are identical.</p>
+<pre tabindex="0"><code>dbcc show_statistics('dbo.Event',_WA_Sys_00000008_108B795B_readonly_database_statistics) with histogram
+dbcc show_statistics('dbo.Event',_WA_Sys_00000008_108B795B) with histogram
+</code></pre><p><img src="https://swasheck.gitlab.io/fixed/2017-04-01-histogram.png" alt="mod"></p>
+<p><strong>Test 4:</strong> <em>Stale Statistics on the Primary, Read Workload on the Secondary</em></p>
+<p>Let&rsquo;s assume that there exists a statistics object on a column on both the primary and secondary replicas of the Availability Group. The primary replica takes changes on that column, but does not have a read workload that would require loading that statistic for compiling a plan. However, the secondary replica <em>does</em> take reads on that column.</p>
+<p>Once again, let&rsquo;s make a change to the <code>[Magnitude]</code> column:</p>
+<pre tabindex="0"><code>update dbo.Event
+	set Magnitude = Magnitude-10
+</code></pre><p>and then look at the status of the statistics</p>
+<p><img src="https://swasheck.gitlab.io/fixed/2017-04-01-test4.png" alt="mod"></p>
+<p>Then we run our read query workload on the secondary and check our statistics.</p>
+<p><img src="https://swasheck.gitlab.io/fixed/2017-04-01-test4.2.png" alt="mod"></p>
+<p>Whereas Microsoft documentation led me to believe that there would simply be a new, temporary, read-only statistics object created, what actually happened was that the statistics object on the secondary was updated, but is now marked as a temporary statistic. What happens when we decide to manually failover the Availability Group?</p>
+<p><img src="https://swasheck.gitlab.io/fixed/2017-04-01-test4.3.png" alt="mod"></p>
+<p>The statistic is not updated, but it changes from a temporary statistic to a permanent statistic. However, this conversion does not hold true for a temporary statistic that is created on the secondary. After a failover, this statistic object</p>
+<p><img src="https://swasheck.gitlab.io/fixed/2017-04-01-test5.png" alt="mod"></p>
+<p>is removed and any read workloads that run against that column on the replica that is now the primary will require a newly created statistics object.</p>
+<p><em><strong>CONCLUSION</strong></em></p>
+<p>Temporary statistics on your readable secondary are an interesting feature that allow for better query planning for read-only workloads than otherwise would be available with the only the stats shipped from the primary. Stored in tempdb, these statistics objects are created and updated when the workload requires such behavior, independent of any action on the primary. Of course, if extant statistics are updated on the primary, those updates will be replayed on the secondary and provide a &ldquo;fresh&rdquo; statistics object to any read-only workload that may require it. Finally, temporary statistics that are created on the secondary will be deleted upon failover of the Availability Group.</p>
+
+        </article>
+    </div>
+
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+            &copy; 2022, swasheck
+        
+        <br>
+        Powered by <a href="https://gohugo.io/" target="_blank">Hugo</a>
+        and <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+    </small>
+</footer>
+</body>
+</html>

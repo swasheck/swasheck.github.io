@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>statistics on stochasmos</title>
+    <link>https://swasheck.github.io/tags/statistics/</link>
+    <description>Recent content in statistics on stochasmos</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2022, swasheck</copyright>
+    <lastBuildDate>Thu, 06 Apr 2017 00:00:00 +0000</lastBuildDate><atom:link href="https://swasheck.github.io/tags/statistics/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Temporary Statistics</title>
+      <link>https://swasheck.github.io/post/2017-04-07-temporary-statistics/</link>
+      <pubDate>Thu, 06 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://swasheck.github.io/post/2017-04-07-temporary-statistics/</guid>
+      <description>I am speaking on statistics in June at the Denver SQL Server User Group but didn&amp;rsquo;t really want to rehash much of the same old information that I&amp;rsquo;ve heard in the past. There&amp;rsquo;s a wealth of information about how to interpret stat headers, density vectors, and histograms. There&amp;rsquo;s also been plenty of virtual ink spilled on when statistics are updated (if you have auto update enabled).
+One new(ish, to me) and interesting topic I stumbled across is the notion of temporary statistics.</description>
+    </item>
+    
+    <item>
+      <title>Skewed Data: Analyzing the Windows</title>
+      <link>https://swasheck.github.io/post/skewed-data-analyzing-the-windows/</link>
+      <pubDate>Tue, 19 Apr 2016 18:35:52 +0000</pubDate>
+      
+      <guid>https://swasheck.github.io/post/skewed-data-analyzing-the-windows/</guid>
+      <description>Previously, we looked at analyzing a table to see which columns in that table may contain skewed data.
+That was a good start, but now it&amp;rsquo;s time to look at the statistics that exist on that column to see if we can identify potential candidates for filtered statistics, based on the &amp;ldquo;windows&amp;rdquo; between histogram steps.
+Much of the logic is the same in this script, except it counts every value in the column.</description>
+    </item>
+    
+    <item>
+      <title>Nerf-Herding in Denver (SQL Saturday #331)</title>
+      <link>https://swasheck.github.io/post/nerf-herding-in-denver-sql-saturday-331/</link>
+      <pubDate>Tue, 16 Sep 2014 17:09:05 +0000</pubDate>
+      
+      <guid>https://swasheck.github.io/post/nerf-herding-in-denver-sql-saturday-331/</guid>
+      <description>In the Star Wars universe, the nerf was an adaptable, hairy, slow, grumpy animal that was important for its meat. In SQL Server, the Statistic is a flexible, hairy, (sometimes) slow, grumpy blob that is important in query compilation. The similarities don&amp;rsquo;t end there, though. Both nerfs and statistics can get unwieldy if not managed properly.
+I have the privilege of speaking at SQL Saturday #331 in Denver this upcoming weekend (Saturday, September 20, 2014) about managing statistics in SQL Server.</description>
+    </item>
+    
+  </channel>
+</rss>

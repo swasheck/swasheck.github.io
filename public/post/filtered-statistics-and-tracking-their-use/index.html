@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en"><head>
+    <title>Filtered Statistics and Tracking Their Use</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="../../images/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        stochasmos
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    thoughts
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="about">about</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="posts">posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="categories">categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="http://github.com/swasheck" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://www.linkedin.com/in/swasheck" target="_blank">
+                            <i class="fab fa-linkedin-in fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">Filtered Statistics and Tracking Their Use</h3>
+            
+            <small class="text-muted">Published 2014-05-16</small>
+        </div>
+
+        <article>
+            <p>As users and business activities generate data that is stored in SQL Server, the possibility for data skew increases. For the purposes of this conversation, data skew can be generally characterized as significant variance in frequencies of values in a column. Admittedly, the significance of the variance depends on factors such as data size and/or the informed subjectivity of the analyst. To illustrate, I&rsquo;ll use some data from a recent SQL Saturday (#297) presentation I did on backup throughput analysis.</p>
+<!-- raw HTML omitted -->
+<p>I have a table called [backup_statistics_detail] in which I stored pre-aggregated descriptive statistics for backup times as a function of a variety of independent variables. There are 309 rows in this table and a simple count of each value in a particular column ([measure], in this example) would seem to indicate skew because of what appear to be wildly-varying frequencies within the distribution (f=2,f=110).</p>
+<p><a href="http://swasheck.files.wordpress.com/2014/05/occurrences.png"><img src="http://swasheck.files.wordpress.com/2014/05/occurrences.png" alt="occurrences"></a></p>
+<p>We could get a bit more geeky to help us, as the analysts, make decisions about where skew may exist. Here we get our metrics: raw frequency (f), relative frequency (v), the average frequency of the set, the standard deviation of the frequency of the set, and the z-score. The z-score measures how many standard deviations from the mean a data point lies and a good rule of thumb is that in a <em>normally-distributed</em> data set, 95% of the data will fall within +/- 1.96 standard deviations and anything outside of that would be considered an &ldquo;outlier.&rdquo; We&rsquo;re interested in the outliers.
+[code language=&ldquo;sql&rdquo;]
+select 
+*, 
+avg(1.*f) over () avg_freq, 
+stdevp(1.*f) over() stdev_freq, 
+(f - avg(1.<em>f) over ())/stdevp(1.<em>f) over() z_score
+from (
+select 
+measure, 
+count(</em>) f, 	
+100.<em>count(</em>) / d.n as v, &ndash;nu is the relative frequency
+d.n
+from backup_statistics_detail bsd
+cross apply (
+select count(</em>) n
+from backup_statistics_detail 
+) d
+group by measure, d.n
+) base_agg
+order by abs((f - avg(1.*f) over ())/stdevp(1.*f) over()) desc
+[/code]
+<a href="http://swasheck.files.wordpress.com/2014/05/outliers.png"><img src="http://swasheck.files.wordpress.com/2014/05/outliers.png" alt="outliers"></a>
+From this query we see that there is a value that really sticks out at us: &lsquo;(1.* (buffercount*maxtransfersize)/1024/1024)&rsquo;. This measure occurs significantly more frequently than other values in the set.</p>
+<p>To translate this into the SQL Server notion of <a href="http://technet.microsoft.com/en-us/library/ms190397.aspx">statistics</a> and the statistics histogram, the value for [measure] would be equivalent to [RANGE_HI_KEY] and the value for [f] would be [EQ_ROWS]. Note that to fully equate the two, we&rsquo;d need to sort by [measure] ASC.</p>
+<p>[code language=&ldquo;sql&rdquo;]
+dbcc show_statistics(backup_statistics_detail,measure);
+[/code]
+<a href="http://swasheck.files.wordpress.com/2014/05/stats.png"><img src="http://swasheck.files.wordpress.com/2014/05/stats.png" alt="stats"></a></p>
+<p>However, we noted that there were only 309 total rows in this table in the first place and we can see that there are only 18 distinct values currently in the table. We know that there are 200 possible &ldquo;steps&rdquo; in a SQL Server statistic histogram so we&rsquo;ve got room to accommodate new values and their relative distribution. Thus, skew in SQL Server statistics parlance is a bit more nuanced than simply saying that a value falls outside of the boundaries. Now we&rsquo;re looking for something that doesn&rsquo;t currently fit, and won&rsquo;t fit into the histogram. For example, I also have a table called [backup_observation] that recorded all of the events collected during a backup with an [event_timestamp] column. Of the 5,555,987 rows in this table, there are 901,900 distinct values for [event_timestamp].</p>
+<p>To deal with these sorts of phenomena, filtered statistics were introduced with SQL Server 2008. We can create a new statistics object with its own histogram that will serve as a &ldquo;window&rdquo;, of sorts, between two values of a full histogram of a statistics object for a column with skew. Kimberly Tripp has an excellent presentation from the <a href="http://www.sqlpass.org/summit/2013/Sessions/SessionDetails.aspx?sid=5050">2013 PASS Summit</a> and a set of <a href="http://www.sqlskills.com/sql-server-resources/sql-server-demos/2013-demo-scripts/">scripts</a> to help analyze objects for skew. I took her logic and ran with it for my own environment (due to constraints surrounding deploying stored procedures here). It&rsquo;s not perfect but you&rsquo;re welcome to go grab it and run it/fork it/modify it here: <a href="https://gist.github.com/swasheck/eb7eb5f5f135280824ef">https://gist.github.com/swasheck/eb7eb5f5f135280824ef</a></p>
+<p>So once created, how do we know that the filtered statistics are actually being used to guide query plan creation? Paul White has an <a href="http://sqlblog.com/blogs/paul_white/archive/2011/09/21/how-to-find-the-statistics-used-to-compile-an-execution-plan.aspx">excellent post</a> about using trace flags to find the statistics used to compile an execution plan. Using this information, I put together the procedure to check to see if the filtered stats that I implemented were being used, because we have tables that show evidence of significant skew.</p>
+<p>Enable the trace flag and write to ERRORLOG:
+[code language=&ldquo;sql&rdquo;]
+dbcc traceon(9204,3605,-1);
+[/code]
+(since this writes quite a bit of information to the ERRORLOG, we need to watch our free space on disk.)
+In order to not duplicate data, I cycled ERRORLOG and then read the log into a table.
+[code language=&ldquo;sql&rdquo;]
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = &lsquo;stats_usage&rsquo;)
+BEGIN
+CREATE TABLE dbo.stats_usage(
+logdate datetime NULL,
+processinfo sysname NOT NULL,
+text nvarchar(max) NULL
+);
+END
+GO
+exec sp_cycle_error_log
+GO
+insert into dbo.stats_usage
+exec sp_readerrorlog 1
+GO
+[/code]
+To get a sense for which filtered stats were being used, I used the following query to aggregate the ERRORLOG dumps:
+[code language=&ldquo;sql&rdquo;]
+declare @dbname sysname = &lsquo;dbname&rsquo;;
+with sta as (
+select 
+su.logdate,
+su.database_name, 
+su.object_name, 
+s.name stat_name, 
+su.column_name, 
+su.filter_expression, 
+s.filter_definition
+from (
+select 
+logdate,
+SUBSTRING(text,32,3) database_name,
+SUBSTRING(text,46,CHARINDEX(&lsquo;IndexId&rsquo;,text)-48) object_name,
+SUBSTRING(text,CHARINDEX(&lsquo;IndexId&rsquo;,text)+9,CHARINDEX(&lsquo;ColumnName:',text)-(CHARINDEX(&lsquo;IndexId&rsquo;,text)+11)) index_id,
+SUBSTRING(text,CHARINDEX(&lsquo;ColumnName&rsquo;,text)+11,CHARINDEX(&lsquo;Expr:',text)-(CHARINDEX(&lsquo;ColumnName&rsquo;,text)+13)) column_name,
+SUBSTRING(text,CHARINDEX(&lsquo;Expr:',text)+5,CHARINDEX(&lsquo;EmptyTable:',text)-(CHARINDEX(&lsquo;Expr:',text)+8)) filter_expression
+from dba.dbo.stats_usage
+where text like &lsquo;Filtered stats loaded: DbName: &lsquo;+@dbname+'%&rsquo; 
+) su 
+join sys.stats s
+on su.index_id = s.stats_id
+and object_id(su.object_name) = s.object_id
+)</p>
+<p>select 
+stat_name, max(logdate) last_use, min(logdate) first_use, count(<em>) total_uses
+from sta	
+group by stat_name
+having count(</em>) &gt; 1
+order by count(*) desc
+option (maxdop 1, recompile);
+[/code]</p>
+<p>Of course, you can use this for any stats by simply changing the [text] filter in the CTE.</p>
+
+        </article>
+    </div>
+
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+            &copy; 2022, swasheck
+        
+        <br>
+        Powered by <a href="https://gohugo.io/" target="_blank">Hugo</a>
+        and <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+    </small>
+</footer>
+</body>
+</html>

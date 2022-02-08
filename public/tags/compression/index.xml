@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Compression on stochasmos</title>
+    <link>https://swasheck.github.io/tags/compression/</link>
+    <description>Recent content in Compression on stochasmos</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2022, swasheck</copyright>
+    <lastBuildDate>Wed, 11 Jun 2014 20:39:51 +0000</lastBuildDate><atom:link href="https://swasheck.github.io/tags/compression/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Data Compression Exploration</title>
+      <link>https://swasheck.github.io/post/data-compression-exploration/</link>
+      <pubDate>Wed, 11 Jun 2014 20:39:51 +0000</pubDate>
+      
+      <guid>https://swasheck.github.io/post/data-compression-exploration/</guid>
+      <description>I recently wanted to explore potential candidates for data compression in our environment. I found a few ways to go about doing this, most notably this TechNet article that steps through strategy and planning. This was helpful, but I wanted to come up with a repeatable process. Since we have partitioned tables, I also wanted to examine candidates for compression at the partition level for each index.
+After conversation with some people whom I consider smarter than I am, I decided that my magic number would be 3.</description>
+    </item>
+    
+  </channel>
+</rss>

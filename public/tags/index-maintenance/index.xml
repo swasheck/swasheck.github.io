@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Index Maintenance on stochasmos</title>
+    <link>https://swasheck.github.io/tags/index-maintenance/</link>
+    <description>Recent content in Index Maintenance on stochasmos</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2022, swasheck</copyright>
+    <lastBuildDate>Mon, 28 Nov 2016 18:35:52 +0000</lastBuildDate><atom:link href="https://swasheck.github.io/tags/index-maintenance/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Index Maintenance Operations</title>
+      <link>https://swasheck.github.io/post/2016-11-28-index-rebuild-reorg/</link>
+      <pubDate>Mon, 28 Nov 2016 18:35:52 +0000</pubDate>
+      
+      <guid>https://swasheck.github.io/post/2016-11-28-index-rebuild-reorg/</guid>
+      <description>Recently, our index maintenance process was called into question on an Availability Group because it began running significantly longer than expected. The initial theory put forward by other groups was that this was due the Availability Group which is a 2+1 cluster (2 HA synchronous replicas, 1 asynchronous DR replica) and there was a commit delay. Our monitoring tool SentryONE didn&amp;rsquo;t alert us to any significant delays, but we committed to investigate the theory since it would be a good exercise for all involved.</description>
+    </item>
+    
+  </channel>
+</rss>

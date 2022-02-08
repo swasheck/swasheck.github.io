@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>sqlio on stochasmos</title>
+    <link>https://swasheck.github.io/tags/sqlio/</link>
+    <description>Recent content in sqlio on stochasmos</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2022, swasheck</copyright>
+    <lastBuildDate>Wed, 15 Oct 2014 20:50:48 +0000</lastBuildDate><atom:link href="https://swasheck.github.io/tags/sqlio/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Storage Testing With SQLIO and FIO</title>
+      <link>https://swasheck.github.io/post/storage-testing-with-sqlio-and-fio/</link>
+      <pubDate>Wed, 15 Oct 2014 20:50:48 +0000</pubDate>
+      
+      <guid>https://swasheck.github.io/post/storage-testing-with-sqlio-and-fio/</guid>
+      <description>Recently I&amp;rsquo;ve been tasked with testing storage for a hardware purchase for a new, large SQL Server implementation. I&amp;rsquo;ve not gotten everything &amp;ldquo;down pat&amp;rdquo; as far as SQL Server IO methods, but I figured I&amp;rsquo;d take on the challenge of getting better.
+SQLIO: The go-to tool There are plenty of SQLIO resources on the Internet, but Jonathan Kehayias has a good post that uses SQLIO well and also references other posts.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en"><head>
+    <title>SQL Server and ReFS: Part 1 - DBCC and In Memory OLTP</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="../../images/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        stochasmos
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    thoughts
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="about">about</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="posts">posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="categories">categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="http://github.com/swasheck" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://www.linkedin.com/in/swasheck" target="_blank">
+                            <i class="fab fa-linkedin-in fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">SQL Server and ReFS: Part 1 - DBCC and In Memory OLTP</h3>
+            
+            <small class="text-muted">Published 2014-11-12</small>
+        </div>
+
+        <article>
+            <p>As I was sitting in Bob Ward&rsquo;s Inside SQL Server I/O presentation, something interesting caught my eye on a particular slide.</p>
+<p><a href="http://msdn.microsoft.com/en-us/library/windows/desktop/hh965610(v=vs.85).aspx"><img src="https://swasheck.files.wordpress.com/2014/11/ward.png?w=300" alt="ward"></a></p>
+<p>It looks like ReFS is now supported for SQL Server 2014. I&rsquo;d run into problems with 2012 so I&rsquo;d just given up but this looks promising. I am neither a filesystem aficionado, nor a dilettante but I know that there are some interesting features of ReFS at which Windows server admins are looking to see if it&rsquo;s viable.</p>
+<p>There are a few known gotchas with ReFS that I&rsquo;m going to (hopefully) test, along with performance characteristics. Performance will be addressed in a separate post because I&rsquo;ve already got the numbers and the post will be a bit deeper and less along the lines of &ldquo;work/no-work.&rdquo;</p>
+<!-- raw HTML omitted -->
+<p>Back in July, 2014,<a href="http://www.qumio.com/Blog/Lists/Posts/Post.aspx?ID=14"> Qumio gave In-Memory OLTP a try</a> with the ReFS filesystem without success. It&rsquo;s been a few months, SQL Server 2014 is out of CTP, and I trust Bob Ward (and his caveat to disable integrity checks as they can cause unintended data file corruption). Additionally, the <a href="http://technet.microsoft.com/en-us/library/hh831724.aspx">ReFS documentation</a> notes that alternate data stream support has been added to ReFS, so let&rsquo;s test.</p>
+<p>Quick-format a volume (j:, in this case) with ReFS, disabling Integrity Steam checks.
+<a href="https://swasheck.files.wordpress.com/2014/11/fmt.png"><img src="https://swasheck.files.wordpress.com/2014/11/fmt.png?w=300" alt="fmt"></a></p>
+<p>For fun, I wanted to see would happen with different file layout configurations, with at least one being on an ReFS-formatted volume (j:\ and p:\ are my ReFS volumes, the others are NTFS):</p>
+<p>[code language=&ldquo;sql&rdquo;]
+&ndash; note, the SQL Server Service account has the Perform Volume Maintenance Tasks privilege on the OS
+create database refs_test 
+on (
+name = refs_test_dat, 
+filename = &lsquo;j:\data\refs_test.mdf&rsquo;,
+size = 25GB,
+maxsize = 45GB,
+filegrowth = 1GB
+)
+log on (
+name = refs_test_log,
+filename = &lsquo;l:\logs\refs_test.ldf&rsquo;,
+size = 1GB,
+maxsize = 10GB,
+filegrowth = 1GB
+);</p>
+<p>&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 15 ms,  elapsed time = 5675 ms.</p>
+<p>create database refs_test 
+on (
+name = refs_test_dat, 
+filename = &lsquo;j:\data\refs_test.mdf&rsquo;,
+size = 25GB,
+maxsize = 45GB,
+filegrowth = 1GB
+)
+log on (
+name = refs_test_log,
+filename = &lsquo;j:\data\refs_test.ldf&rsquo;,
+size = 1GB,
+maxsize = 10GB,
+filegrowth = 1GB
+);</p>
+<p>&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 30 ms,  elapsed time = 10522 ms.</p>
+<p>create database refs_test 
+on (
+name = refs_test_dat, 
+filename = &rsquo;m:\data\refs_test.mdf',
+size = 25GB,
+maxsize = 45GB,
+filegrowth = 1GB
+)
+log on (
+name = refs_test_log,
+filename = &lsquo;j:\data\refs_test.ldf&rsquo;,
+size = 1GB,
+maxsize = 10GB,
+filegrowth = 1GB
+);</p>
+<p>&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 31 ms,  elapsed time = 2566 ms</p>
+<pre><code>create database refs_test 
+on (
+	name = refs_test_dat, 
+	filename = 'm:\data\refs_test.mdf',
+	size = 25GB,
+	maxsize = 45GB,
+	filegrowth = 1GB
+)
+log on (
+	name = refs_test_log,
+	filename = 'l:\logs\refs_test.ldf',
+	size = 1GB,
+	maxsize = 10GB,
+	filegrowth = 1GB
+);
+</code></pre>
+<p>&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 47 ms,  elapsed time = 2737 ms.</p>
+<p>create database refs_test 
+on (
+name = refs_test_dat, 
+filename = &lsquo;j:\data\refs_test.mdf&rsquo;,
+size = 25GB,
+maxsize = 45GB,
+filegrowth = 1GB
+)
+log on (
+name = refs_test_log,
+filename = &lsquo;p:\logs\refs_test.ldf&rsquo;,
+size = 1GB,
+maxsize = 10GB,
+filegrowth = 1GB
+);
+&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 16 ms,  elapsed time = 6773 ms.</p>
+<p>create database refs_test 
+on (
+name = refs_test_dat, 
+filename = &rsquo;m:\data\refs_test.mdf',
+size = 25GB,
+maxsize = 45GB,
+filegrowth = 1GB
+)
+log on (
+name = refs_test_log,
+filename = &rsquo;m:\data\refs_test.ldf',
+size = 1GB,
+maxsize = 10GB,
+filegrowth = 1GB
+);
+&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 47 ms,  elapsed time = 20573 ms.
+[/code]</p>
+<p>(Each DDL was executed five times and the best run of each was taken. No averages, variances, or standard deviations were harmed in this exercise.)</p>
+<p>So the fastest database creation occurred with the log on ReFS and the data file on NTFS. The slowest was with all files on the same volume with ReFS edging NTFS in that regard. This looks like an area for exploration with Bob&rsquo;s PASS Summit 2014 WinDbg scripts.</p>
+<p>Now let&rsquo;s see if we can do some In-Memory OLTP.</p>
+<p>[code language=&ldquo;sql&rdquo;]
+alter database refs_test
+add filegroup refs_test_memopt contains memory_optimized_data;</p>
+<p>alter database refs_test
+add file (
+name = refs_test_memopt_file,
+filename = &lsquo;j:\data\refs_test_memopt_file&rsquo;
+) to filegroup refs_test_memopt;</p>
+<p>alter database refs_test
+set memory_optimized_elevate_to_snapshot=on;</p>
+<p>[/code]
+<a href="https://swasheck.files.wordpress.com/2014/11/addfg.png"><img src="https://swasheck.files.wordpress.com/2014/11/addfg1.png?w=300" alt="addfg"></a>
+No errors.</p>
+<p>Now let&rsquo;s create a memory-optimized table and populate it with some data:
+[code language=&ldquo;sql&rdquo;]
+use refs_test;
+go</p>
+<p>CREATE TABLE dbo.lemma(
+lemma_id int identity(1,1) not null primary key nonclustered hash with (bucket_count = 400000),
+lemma nvarchar(255) null
+) with (memory_optimized=on);</p>
+<p>&ndash; can&rsquo;t do a cross-database transaction with a memory-optimized table
+select *
+into dbo.l2
+from greek.dbo.lemma;</p>
+<p>insert lemma (lemma)
+select lemma from l2</p>
+<p>drop table l2;</p>
+<p>select *
+into dbo.f_word &ndash; create a non-memory optimized table
+from greek.dbo.f_word;
+[/code]
+<a href="https://swasheck.files.wordpress.com/2014/11/popdata.png"><img src="https://swasheck.files.wordpress.com/2014/11/popdata.png?w=300" alt="popdata"></a></p>
+<p>That works as well. What about creating a database snapshot?</p>
+<p>[code language=&ldquo;sql&rdquo;]
+use master;
+go</p>
+<p>create database greek_snap on (
+name = greek_Data, filename=&lsquo;j:\data\greek_snap.ss&rsquo;
+) as snapshot of greek;</p>
+<p>select 
+d.name,
+mf.name,
+mf.physical_name,
+type_desc,
+data_space_id, 
+is_sparse, 
+is_memory_optimized_elevate_to_snapshot_on
+from sys.master_files mf
+join sys.databases d 
+on mf.database_id = d.database_id
+where d.database_id &gt; 4;
+[/code]
+<a href="https://swasheck.files.wordpress.com/2014/11/snap.png"><img src="https://swasheck.files.wordpress.com/2014/11/snap.png?w=300" alt="snap"></a>
+Well that worked well and we can see a sparse file sitting on</p>
+<p>Still no problems. What about a DBCC CHECKDB?</p>
+<p>[code language=&ldquo;sql&rdquo;]
+use master;
+dbcc checkdb(refs_test);
+[/code]
+We can see that the Memory-Optimized table is skipped, but the other table is not skipped and is checked, but it is done without any errors.
+<a href="https://swasheck.files.wordpress.com/2014/11/dbcc.png"><img src="https://swasheck.files.wordpress.com/2014/11/dbcc.png?w=300" alt="dbcc"></a></p>
+<p><a href="http://swasheck.wordpress.com/2013/10/07/more-information-on-dbcc-checks-with-new-extended-events-in-sql-server-2014-ctp1/">Recalling a previous blog post</a> (and cannibalizing its code), let&rsquo;s check to see how CHECKDB is performed. Does it create a snapshot or is it taking out TABLOCKX locks while running?</p>
+<p>[code language=&ldquo;sql&rdquo;]
+&ndash; create the event session
+create event session [DBCC_Check] on server
+add event sqlserver.check_phase_tracing(
+action(sqlserver.database_id,
+sqlserver.database_name)),
+add event sqlserver.check_thread_message_statistics(
+action(sqlserver.database_id,
+sqlserver.database_name)),
+add event sqlserver.check_thread_page_io_statistics(
+action(sqlserver.database_id,
+sqlserver.database_name)),
+add event sqlserver.check_thread_page_latch_statistics(
+action(sqlserver.database_id,
+sqlserver.database_name))
+add target package0.ring_buffer
+WITH (track_causality = on);</p>
+<p>&ndash; start the event session
+alter event session [DBCC_Check] on server
+state = start;</p>
+<p>&ndash; run the dbcc
+dbcc checkdb(refs_test);</p>
+<p>&ndash; parse the data in the ring buffer
+select * <br>
+from (
+select
+event_data.value('(event/@name)[1]', &lsquo;varchar(50)') AS event_name,
+DATEADD(hh,DATEDIFF(hh, GETUTCDATE(), CURRENT_TIMESTAMP),
+event_data.value('(event/@timestamp)[1]&rsquo;, &lsquo;datetime2&rsquo;)) AS [timestamp],
+event_data.value('(event/data[@name=&ldquo;database_id&rdquo;]/value)[1]', &lsquo;sysname&rsquo;) AS event_database_id,
+event_data.value('(event/action[@name=&ldquo;database_id&rdquo;]/value)[1]', &lsquo;sysname&rsquo;) AS action_database_id,
+event_data.value('(event/data[@name=&ldquo;opcode&rdquo;]/text)[1]', &lsquo;NVARCHAR(25)') AS opcode_text,
+event_data.value('(event/data[@name=&ldquo;call_duration&rdquo;]/value)[1]&rsquo;, &lsquo;bigint&rsquo;) AS call_duration,
+event_data.value('(event/data[@name=&ldquo;is_remote&rdquo;]/value)[1]', &lsquo;bit&rsquo;) AS is_remote,
+event_data.value('(event/data[@name=&ldquo;command_phase&rdquo;]/text)[1]', &lsquo;nvarchar(100)') AS command_phase_text,
+event_data.value('(event/data[@name=&ldquo;logical_reads&rdquo;]/value)[1]&rsquo;, &lsquo;bigint&rsquo;) AS logical_reads,
+event_data.value('(event/data[@name=&ldquo;physical_reads&rdquo;]/value)[1]', &lsquo;bigint&rsquo;) AS physical_reads,
+event_data.value('(event/data[@name=&ldquo;run_ahead_reads&rdquo;]/value)[1]', &lsquo;bigint&rsquo;) AS run_ahead_reads,
+event_data.value('(event/data[@name=&ldquo;total_page_io_latch_waits&rdquo;]/value)[1]', &lsquo;bigint&rsquo;) AS total_page_io_latch_waits,
+event_data.value('(event/data[@name=&ldquo;page_io_latch_wait_time_in_ms&rdquo;]/value)[1]', &lsquo;bigint&rsquo;) AS page_io_latch_wait_time_in_ms,
+event_data.value('(event/data[@name=&ldquo;total_page_latch_waits&rdquo;]/value)[1]', &lsquo;bigint&rsquo;) AS total_page_latch_waits,
+event_data.value('(event/data[@name=&ldquo;page_latch_wait_time_in_ms&rdquo;]/value)[1]', &lsquo;bigint&rsquo;) AS page_latch_wait_time_in_ms,
+event_data.value('(event/data[@name=&ldquo;messages_sent&rdquo;]/value)[1]', &lsquo;int&rsquo;) AS messages_sent,
+event_data.value('(event/data[@name=&ldquo;messages_received&rdquo;]/value)[1]', &lsquo;int&rsquo;) AS messages_received,
+event_data.value('(event/action[@name=&ldquo;database_name&rdquo;]/value)[1]', &lsquo;sysname&rsquo;) AS database_name,
+CAST(SUBSTRING(event_data.value('(event/action[@name=&ldquo;attach_activity_id&rdquo;]/value)[1]', &lsquo;varchar(50)'), 1, 36) AS uniqueidentifier) as activity_id,
+CAST(SUBSTRING(event_data.value('(event/action[@name=&ldquo;attach_activity_id&rdquo;]/value)[1]&rsquo;, &lsquo;varchar(50)'), 38, 10) AS int) as event_sequence,
+CAST(SUBSTRING(event_data.value('(event/action[@name=&ldquo;attach_activity_id_xfer&rdquo;]/value)[1]&rsquo;, &lsquo;varchar(50)'), 1, 36) AS uniqueidentifier) as activity_id_xfer
+from
+( select XEvent.query(&rsquo;.') AS event_data
+from
+( &ndash; Cast the target_data to XML
+select CAST(target_data AS XML) AS TargetData
+from sys.dm_xe_session_targets st
+JOIN sys.dm_xe_sessions s
+ON s.address = st.event_session_address
+where name = &lsquo;DBCC_Check&rsquo;
+AND target_name = &lsquo;ring_buffer&rsquo;
+) AS Data
+&ndash; Split out the Event Nodes
+CROSS APPLY TargetData.nodes (&lsquo;RingBufferTarget/event&rsquo;) AS XEventData (XEvent)
+) AS tab (event_data)
+) xedata
+order by timestamp</p>
+<p>&ndash; stop the event session
+alter event session [DBCC_Check] on server
+state = stop;</p>
+<p>&ndash; drop the event session
+drop event session [DBCC_Check] on server;
+[/code]</p>
+<p><a href="https://swasheck.files.wordpress.com/2014/11/dbcc2.png"><img src="https://swasheck.files.wordpress.com/2014/11/dbcc2.png" alt="dbcc2"></a></p>
+<p>The row outlined in green shows the start of the step a snapshot is being created (so it actually creates a snapshot). The &ldquo;action&rdquo; database_id, outlined in red, is the database where the DBCC check is taking place - the snapshot.</p>
+<p>Based on this evidence, it looks like ReFS is supported by SQL Server 2014 for at least basic utilization. There may be things that are yet undiscovered in what amounts to a v1.0 release of a new filesystem, so I wouldn&rsquo;t necessarily run out and put all of my production SQL Servers on 2014 + ReFS. However, it&rsquo;s looking like support is certainly advancing.</p>
+<p>Next time I&rsquo;ll talk IOPS and throughput using fio.</p>
+
+        </article>
+    </div>
+
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+            &copy; 2022, swasheck
+        
+        <br>
+        Powered by <a href="https://gohugo.io/" target="_blank">Hugo</a>
+        and <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+    </small>
+</footer>
+</body>
+</html>

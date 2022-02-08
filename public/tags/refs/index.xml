@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ReFS on stochasmos</title>
+    <link>https://swasheck.github.io/tags/refs/</link>
+    <description>Recent content in ReFS on stochasmos</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2022, swasheck</copyright>
+    <lastBuildDate>Wed, 12 Nov 2014 04:07:55 +0000</lastBuildDate><atom:link href="https://swasheck.github.io/tags/refs/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>SQL Server and ReFS: Part 1 - DBCC and In Memory OLTP</title>
+      <link>https://swasheck.github.io/post/sql-server-and-refs-part-1-dbcc-and-in-memory-oltp/</link>
+      <pubDate>Wed, 12 Nov 2014 04:07:55 +0000</pubDate>
+      
+      <guid>https://swasheck.github.io/post/sql-server-and-refs-part-1-dbcc-and-in-memory-oltp/</guid>
+      <description>As I was sitting in Bob Ward&amp;rsquo;s Inside SQL Server I/O presentation, something interesting caught my eye on a particular slide.
+
+It looks like ReFS is now supported for SQL Server 2014. I&amp;rsquo;d run into problems with 2012 so I&amp;rsquo;d just given up but this looks promising. I am neither a filesystem aficionado, nor a dilettante but I know that there are some interesting features of ReFS at which Windows server admins are looking to see if it&amp;rsquo;s viable.</description>
+    </item>
+    
+  </channel>
+</rss>

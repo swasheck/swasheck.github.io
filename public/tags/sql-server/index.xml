@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SQL Server on stochasmos</title>
+    <link>https://swasheck.github.io/tags/sql-server/</link>
+    <description>Recent content in SQL Server on stochasmos</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2022, swasheck</copyright>
+    <lastBuildDate>Tue, 16 Sep 2014 17:09:05 +0000</lastBuildDate><atom:link href="https://swasheck.github.io/tags/sql-server/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Nerf-Herding in Denver (SQL Saturday #331)</title>
+      <link>https://swasheck.github.io/post/nerf-herding-in-denver-sql-saturday-331/</link>
+      <pubDate>Tue, 16 Sep 2014 17:09:05 +0000</pubDate>
+      
+      <guid>https://swasheck.github.io/post/nerf-herding-in-denver-sql-saturday-331/</guid>
+      <description>In the Star Wars universe, the nerf was an adaptable, hairy, slow, grumpy animal that was important for its meat. In SQL Server, the Statistic is a flexible, hairy, (sometimes) slow, grumpy blob that is important in query compilation. The similarities don&amp;rsquo;t end there, though. Both nerfs and statistics can get unwieldy if not managed properly.
+I have the privilege of speaking at SQL Saturday #331 in Denver this upcoming weekend (Saturday, September 20, 2014) about managing statistics in SQL Server.</description>
+    </item>
+    
+  </channel>
+</rss>

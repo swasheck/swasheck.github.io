@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en"><head>
+    <title>Finding Value in Incremental Statistics Pt. 1</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="../../images/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        stochasmos
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    thoughts
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="about">about</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="posts">posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="categories">categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="http://github.com/swasheck" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://www.linkedin.com/in/swasheck" target="_blank">
+                            <i class="fab fa-linkedin-in fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">Finding Value in Incremental Statistics Pt. 1</h3>
+            
+            <small class="text-muted">Published 2015-10-21</small>
+        </div>
+
+        <article>
+            <p>I originally created this post and observed some rather embarrassing sloppiness and miscalculations. I&rsquo;ve simply decided to pull the post and rework it. This is the result of those labors.</p>
+<p>Recently, I answered a question on <a href="http://dba.stackexchange.com/q/111590/4490">dba.stackexchange</a> related to an interesting occurrence with incremental statistics. This led to an good conversation about the efficacy (and utility) of incremental statistics. The primary focus was on Erin Stellato&rsquo;s confirmation that <a href="http://sqlperformance.com/2015/05/sql-statistics/incremental-statistics-are-not-used-by-the-query-optimizer">partition-level stats are not used by the Query Optimizer</a>, thereby identifying a rather sizable gap in the utility of incremental statistics. The only possible benefit I could champion for incremental statistics was that it <em>might</em> allow us to sample at consistently higher rates since the entire table would not need to be sampled - just the ones that presented a compelling enough reason for update (modification counter being a primary focus). Naturally, we&rsquo;d incur the penalty of the higher sample rate at the initial sampling, but ongoing maintenance would be able to support the higher sample rates because we would only have to sample at the partition level. In this scenario, there are two measures to consider:</p>
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p>What&rsquo;s the break-even point for the benefits partition-level sampling after having incurred the initial cost of the higher sample rate?</p>
+</li>
+<li>
+<p>Is it really even worth it? How do our query plans reflect the benefit?</p>
+</li>
+</ul>
+<p>For the sake of post length, let&rsquo;s focus on the first question, as two variants. First, what is the break-even point for a &ldquo;traditional&rdquo; statistics object and an incremental statistics object at the same sample rate? Following that, if we can get higher sample rates at diminished times, what are the break-even points for these sample rates?</p>
+<h2 id="breaking-even-on-the-same-sample-rate">Breaking Even On The Same Sample Rate?</h2>
+<p>I&rsquo;ve loaded the most recent StackExchange dump (everything except StackOverflow) and will evaluating the <code>PostHistory</code> table, with 21,637,283 rows. To baseline the process, I wanted to get a sense for the default sample rate on the table. 0.786988828495703% (yes, that was multiplied by 100 and it really is .79%).</p>
+<p>[code lang=text]
+&ndash; PostHistory DDL
+CREATE TABLE [dbo].[PostHistory](
+[Id] [bigint] NOT NULL,
+[PostHistoryTypeId] [int] NOT NULL,
+[PostId] [bigint] NOT NULL,
+[RevisionGUID] [uniqueidentifier] NOT NULL,
+[CreationDate] <a href="3">datetime2</a> DEFAULT &lsquo;1900-01-01&rsquo;,
+[UserId] [bigint] NULL,
+[UserDisplayName] <a href="500">nvarchar</a> NULL,
+[Comment] <a href="4000">nvarchar</a> NULL,
+[Text] <a href="max">nvarchar</a> NULL,
+[CloseReasonId] [int] NULL,
+[SiteId] [int] NOT NULL,
+CONSTRAINT [pk_PostHistory] PRIMARY KEY CLUSTERED 
+(
+[PostId] ASC,
+[SiteId] ASC,
+[PostHistoryTypeId] ASC,
+[Id] ASC, 
+[CreationDate] ASC
+)WITH (DATA_COMPRESSION = PAGE) ON [PRIMARY]
+) ON [PRIMARY] 
+[/code]</p>
+<p>[code lang=text]
+dbcc dropcleanbuffers;
+go
+set statistics time on;
+go
+update statistics dbo.PostHistory(pk_PostHistory) with incremental = off;
+go
+set statistics time off;
+go</p>
+<p>&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 1515 ms,  elapsed time = 12359 ms.</p>
+<p>dbcc dropcleanbuffers;
+go
+set statistics time on;
+go
+update statistics dbo.PostHistory(pk_PostHistory) with incremental = on;
+go
+set statistics time off;
+go</p>
+<p>&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 1781 ms,  elapsed time = 12674 ms.
+[/code]</p>
+<p>We generally eschew default sample rates lower than 1% in our environments and prefer round up, so let&rsquo;s get that timing for a 1% sample rate.</p>
+<p>[code lang=text]
+dbcc dropcleanbuffers;
+go
+set statistics time on;
+go
+update statistics dbo.PostHistory(pk_PostHistory) with incremental = off, sample 1 percent;
+go
+set statistics time off;
+go</p>
+<p>&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 2000 ms,  elapsed time = 14844 ms.</p>
+<p>dbcc dropcleanbuffers;
+go
+set statistics time on;
+go
+update statistics dbo.PostHistory(pk_PostHistory) with incremental = on, sample 1 percent;
+go
+set statistics time off;
+go</p>
+<p>&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 2391 ms,  elapsed time = 15646 ms.
+[/code]</p>
+<p>So it looks like converting/updating a statistics object as incremental is marginally slower than a non-incremental statistic. I&rsquo;ve not traced through this using windbg so I can&rsquo;t speak with certainty as to why this occurs, but my suspicion is that is has to do with merging the stats pages. So what about subsequent full updates?</p>
+<p>[code lang=text]
+dbcc dropcleanbuffers;
+go
+set statistics time on;
+go
+update statistics dbo.PostHistory(pk_PostHistory) with incremental = off, sample 1 percent;
+go
+set statistics time off;
+go</p>
+<p>&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 1829 ms,  elapsed time = 13355 ms.</p>
+<p>dbcc dropcleanbuffers;
+go
+set statistics time on;
+go
+update statistics dbo.PostHistory(pk_PostHistory) with resample;
+go
+set statistics time off;
+go</p>
+<p>&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 2359 ms,  elapsed time = 13272 ms.</p>
+<p>dbcc dropcleanbuffers;
+go
+set statistics time on;
+go
+update statistics dbo.PostHistory(pk_PostHistory) with incremental = on, sample 1 percent;
+go
+set statistics time off;
+go</p>
+<p>&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 1907 ms,  elapsed time = 13726 ms.</p>
+<p>dbcc dropcleanbuffers;
+go
+set statistics time on;
+go
+update statistics dbo.PostHistory(pk_PostHistory) with resample;
+go
+set statistics time off;
+go</p>
+<p>&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 1875 ms,  elapsed time = 13475 ms.
+[/code]</p>
+<p>The timings are consistent, so there doesn&rsquo;t seem to be much overhead when moving between an incremental statistic and an non-incremental statistic.</p>
+<p>With that information in hand, we can now set about the task of leveraging incremental statistics to reduce our statistics maintenance time. Updating each of the partitions, individually, at a 1 percent sample rate, produced the following results:</p>
+<p>[code lang=text]
+&ndash; partition 1
+&ndash;SQL Server Execution Times:
+&ndash;  CPU time = 0 ms,  elapsed time = 7 ms.</p>
+<p>&ndash; partition 2
+&ndash;SQL Server Execution Times:
+&ndash;  CPU time = 16 ms,  elapsed time = 23 ms.</p>
+<p>&ndash; partition 3
+&ndash;SQL Server Execution Times:
+&ndash;  CPU time = 78 ms,  elapsed time = 550 ms.</p>
+<p>&ndash; partition 4
+&ndash;SQL Server Execution Times:
+&ndash;  CPU time = 63 ms,  elapsed time = 856 ms.</p>
+<p>&ndash; partition 5
+&ndash;SQL Server Execution Times:
+&ndash;  CPU time = 188 ms,  elapsed time = 2003 ms.</p>
+<p>&ndash; partition 6
+&ndash;SQL Server Execution Times:
+&ndash;  CPU time = 390 ms,  elapsed time = 2682 ms.</p>
+<p>&ndash; partition 7
+&ndash;SQL Server Execution Times:
+&ndash;  CPU time = 453 ms,  elapsed time = 2786 ms.</p>
+<p>&ndash; partition 8
+&ndash;SQL Server Execution Times:
+&ndash;  CPU time = 593 ms,  elapsed time = 4248 ms.</p>
+<p>&ndash; partition 9
+&ndash;SQL Server Execution Times:
+&ndash;  CPU time = 375 ms,  elapsed time = 1916 m
+[/code]</p>
+<p>Obviously, there are some outliers here. Partitions 1-4 have extremely low timings, with Partition 1 containing 0 rows. Partition 7 is our largest partition with 5,855,947 rows, while Partition 8 is the slowest partition to update, but only has the third highest row count. (Sidebar: Interestingly, the sample rates for each of these partition varies at the row count level (see below). Perhaps Partition 8 is slower because of its higher sample rate, relative to the rest of the partitions. Keep in mind that a sample rate specifies the <a href="https://msdn.microsoft.com/en-us/library/ms187348.aspx?f=255&amp;MSPPError=-2147217396">percentage of pages</a> and we&rsquo;re calculating the number of rows sampled. As such, Partition 8 looks to have a higher number of rows per page than other partitions. )</p>
+<p>[code lang=text]
+select 
+sysdatetime(),                       <br>
+schema_name = sh.name,
+table_name = t.name,
+stat_name = s.name,
+index_name = i.name,
+sample_rate = (100.*sp.rows_sampled) / sp.unfiltered_rows,
+leading_column = index_col(quotename(sh.name)+'.'+quotename(t.name),s.stats_id,1),
+s.stats_id,
+parition_number = isnull(sp.partition_number,1),
+s.has_filter,                    <br>
+s.is_incremental,
+s.auto_created,
+sp.last_updated, <br>
+sp.rows,
+sp.rows_sampled,                     <br>
+sp.unfiltered_rows,
+modification_counter = coalesce(sp.modification_counter, n1.modification_counter) 
+from sys.stats s 
+join sys.tables t 
+on s.object_id = t.object_id
+join sys.schemas sh
+on t.schema_id = sh.schema_id
+left join sys.indexes i 
+on s.object_id = i.object_id
+and s.name = i.name
+cross apply sys.dm_db_stats_properties_internal(s.object_id, s.stats_id) sp
+outer apply sys.dm_db_stats_properties_internal(s.object_id, s.stats_id) n1
+where n1.node_id = 1
+and (
+(is_incremental = 0)
+or
+(is_incremental = 1 and sp.partition_number is not null)
+)
+and s.name = &lsquo;pk_PostHistory&rsquo;
+order by s.stats_id,isnull(sp.partition_number,1)
+[/code]</p>
+<p><img src="https://swasheck.files.wordpress.com/2015/10/stats.png" alt="image"></p>
+<p>Let&rsquo;s consider Partitions 5-9 as the partitions that we&rsquo;d be most likely to take updates, or at least a more representative sample of update timing. The average of the update timings (for a 1 percent sample rate) for these 5 partitions is 2727 ms. Let&rsquo;s extrapolate out the update timings and the point at which we&rsquo;d realize the maintenance gains of incremental statistics. For the purposes of this calculation, I&rsquo;m using the first timing of the 1 percent sampling.</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>With sample rate being held constant, we can generalize that we begin to realize the maintenance benefit of incremental statistics as of the second occurrence. This is a nice fabricated situation, but what happens when an <code>auto_stats</code> update occurs? How long does it take? Does it just update the partition? Does it preserve sample rate?</p>
+<p>I&rsquo;ve dumped Partition 9&rsquo;s data to a staging table. Once the data was effectively &ldquo;backed up&rdquo; to a different table, I deleted that data, inserted it back into the table, ran a select, and captured what happened with the <code>auto_stats</code> extended event on a <code>SELECT</code> that would fire the event. We see that the sample rate is preserved at 1 percent, and only the relevant partition is updated (I ensured I didn&rsquo;t confuse myself by running this auto update-inducing query a few hours after the data modifications). We can also see that it took 397065 microseconds, but what&rsquo;s not shown is that there were other stats updates that took upwards of 28534404 microseconds (~28.5 seconds). {A future research consideration would be to determine why it&rsquo;s so much faster. My initial suspicion is that the pages were already read into memory and, as such, more rapidly sampled}</p>
+<p><img src="https://swasheck.files.wordpress.com/2015/10/auto_stats_update.png" alt="howaboutanotherimage"></p>
+<p>So even if we hit the <code>auto_stats</code> update threshold, we&rsquo;re only going to resample the affected partition. If we affect multiple partitions with modifications that would fire an <code>auto_stats</code> event, we do see that just the affected partitions are updated.</p>
+<p><img src="https://swasheck.files.wordpress.com/2015/10/multi-partition.png" alt="mulitpartition"></p>
+<p>So not only does a robust statistics maintenance plan offer maintenance window savings, the <code>auto_stats</code> resampling would also present additional benefit. This benefit would be noticed in the statistics updates that occur at any query plan (re)compilation that uses those statistics, potentially leading to a marginally faster query execution time due to lower resample times. Keep in mind that the effects of this would be observed more directly when <code>AUTO_UPDATE_STATISTICS_ASYNC = OFF</code> (default) is set on the database.</p>
+<h2 id="can-i-recover-time-lost-from-choosing-a-higher-sample-rate">Can I Recover Time Lost From Choosing A Higher Sample Rate?</h2>
+<p>One of the premises I initially held in support of incremental statistics was that I could get away with a higher sample rate and eventually recover the time &ldquo;lost&rdquo; as a result of sampling the incremental statistic at a higher rate.</p>
+<p>Because today is a new day, and I&rsquo;m running these tests on a VM, I&rsquo;d like to account for factors such as noisy neighbors so I&rsquo;m going to re-baseline the 1 percent sampling on a non-incremental statistic.</p>
+<p>[code lang=text]
+dbcc dropcleanbuffers;
+go
+set statistics time on;
+go
+update statistics dbo.PostHistory(pk_PostHistory) with incremental = off, sample 1 percent;
+go
+set statistics time off;
+go</p>
+<p>&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 2125 ms,  elapsed time = 24571 ms.
+[/code]</p>
+<p>Let&rsquo;s evaluate for a test of 10 percent sampling on an incremental statistics object.</p>
+<p>[code lang=text]
+dbcc dropcleanbuffers;
+go
+set statistics time on;
+go
+update statistics dbo.PostHistory(pk_PostHistory) with incremental = on, sample 10 percent;
+go
+set statistics time off;
+go</p>
+<p>&ndash; SQL Server Execution Times:
+&ndash;   CPU time = 15266 ms,  elapsed time = 73439 ms.
+[/code]</p>
+<p>I once again took the average of updates to Partitions 5-9 which came out to 18182 ms. Using this data, I projected how long it would take to recover the amount of time it took to sample at the higer rate (~73 seconds).</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>In this model, the 9th incremental update would be our break-even point. If we simplify these models to formulae:</p>
+<p>Non-Incremental: <img src="https://swasheck.files.wordpress.com/2015/10/10pctnonincrementalformula.png" alt="10pctnoninct"></p>
+<p>Incremental: <img src="https://swasheck.files.wordpress.com/2015/10/10pctincrementalformula.png" alt="10pctinct"></p>
+<p>and then find the intersection of these two lines (<img src="https://upload.wikimedia.org/math/b/a/0/ba0a21862aa7bb3a27bab64e38756264.png" alt="intrsct">), we&rsquo;d see that the actual overlap would be at x=8.648771, or &ldquo;the 9th incremental update&rdquo;</p>
+<p><img src="https://swasheck.files.wordpress.com/2015/10/10pctintersect1.png" alt="10pctIntersect"></p>
+<p>However, bumping the sample rate leads to very different results. The initial update takes 118776 ms. and the average of Partitions 5-9 is 24271.2 ms. Doing the same line-intersection arithmetic, we&rsquo;d find an intersection at 315.2262, or, we&rsquo;d recover the time on our 316th statistics update.</p>
+<h2 id="so-what">So What?</h2>
+<p>Here are some interesting takeaways from this.</p>
+<ul>
+<li>
+<p>We can rapidly recover statistics maintenance times with active maintenance that examines partitions</p>
+</li>
+<li>
+<p>AutoStats update events preserve the sample rate, and operate only on affected partitions, <em>potentially</em> allowing for faster start-to-finish query execution time when a stats update is necessary</p>
+</li>
+<li>
+<p>We can recover statistics maintenence times with a higher sample rate on an incremental statistic over against its non-incremental statistic of a lower sample rate.</p>
+</li>
+<li>
+<p>We need to be reasonable with our higher sample rate expectations, because we may never actually recover the time if we sample too high</p>
+</li>
+</ul>
+
+        </article>
+    </div>
+
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+            &copy; 2022, swasheck
+        
+        <br>
+        Powered by <a href="https://gohugo.io/" target="_blank">Hugo</a>
+        and <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+    </small>
+</footer>
+</body>
+</html>

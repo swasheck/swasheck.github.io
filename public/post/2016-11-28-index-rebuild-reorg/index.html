@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en"><head>
+    <title>Index Maintenance Operations</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="../../images/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        stochasmos
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    thoughts
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="about">about</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="posts">posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="categories">categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="http://github.com/swasheck" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://www.linkedin.com/in/swasheck" target="_blank">
+                            <i class="fab fa-linkedin-in fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">Index Maintenance Operations</h3>
+            
+            <small class="text-muted">Published 2016-11-28</small>
+        </div>
+
+        <article>
+            <p>Recently, our index maintenance process was called into question on an Availability Group because it began running significantly longer than expected. The initial theory put forward by other groups was that this was due the Availability Group which is a 2+1 cluster (2 HA synchronous replicas, 1 asynchronous DR replica) and there was a commit delay. Our monitoring tool <a href="https://sentryone.com">SentryONE</a> didn&rsquo;t alert us to any significant delays, but we committed to investigate the theory since it would be a good exercise for all involved. However, our priority was to actually investigate the objects and indexes on which maintenance was done. Because we log the process' details, we were able to identify that our process had progressively skewed toward reorganization and away from rebuild operations. Additionally, the larger of the largest of the indexes (by page count and row count) had become 100% reorganization operations.</p>
+<p>Since nobody on our team was particularly familiar with the internals of each operation, I did a bit of research and came across <a href="http://www.sqlpass.org/summit/2013/Sessions/SessionDetails.aspx?sid=5158">Tim Chapman&rsquo;s 2013 Summit Index Internals Deep Dive presentation</a>. In the slide deck I read a few things that provided some clues into what was occurring during our maintenance process. The first is that reorganization is always single-threaded (slide 29) and that reorganization &ldquo;[g]enerates a LOT more t-log records than Rebuild.&rdquo; Given this information, it would seem to make sense as to why our process had suddenly begun taking so much longer.</p>
+<ul>
+<li>
+<ol>
+<li>Our larger tables were only being reorganized and not being rebuilt. Since reorganization is single-threaded, moving through high-page count tables on one thread would naturally take a bit longer.</li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li>If what Tim said is true about t-log records, then there could potentially be a greater chance of log commit delay on the Availability Group, though it hadn&rsquo;t become problematic enough for us to experience a breach of our alert threshold.</li>
+</ol>
+</li>
+</ul>
+<p>Certainly this is helpful information and served as a good initial response. However, we need to be able to come up with a better explanation, and we need to validate what we found on the Internet. To do this, I created a test scenario in which I&rsquo;d test the two operations on an index and see how the server responds. The process is as follows:</p>
+<ul>
+<li>
+<ol>
+<li>Backup the database</li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li>Rebuild the candidate index</li>
+</ol>
+</li>
+<li>
+<ol start="3">
+<li>Restore the database</li>
+</ol>
+</li>
+<li>
+<ol start="4">
+<li>Reorganize the candidate index</li>
+</ol>
+</li>
+</ul>
+<p>To monitor these processes I created an Extended Event session with many of the conceivable events that could be raised during the processes (I collected additional actions and filtered based on the database in question).</p>
+<pre tabindex="0"><code>create event session XEIndexRebuild on server 
+	add event sqlos.wait_info,
+	add event sqlserver.auto_stats,
+	add event sqlserver.databases_dbcc_logical_scan,
+	add event sqlserver.databases_log_flush,
+	add event sqlserver.degree_of_parallelism,
+	add event sqlserver.file_write_completed,
+	add event sqlserver.index_build_extents_allocation,
+	add event sqlserver.lock_released(set collect_resource_description=(1)),
+	add event sqlserver.locks_lock_waits,
+	add event sqlserver.object_altered,
+	add event sqlserver.oiblob_cleanup_end,
+	add event sqlserver.physical_page_read,
+	add event sqlserver.physical_page_write,
+	add event sqlserver.scan_stopped,
+	add event sqlserver.sql_batch_completed,
+	add event sqlserver.sql_batch_starting,
+	add event sqlserver.transaction_log
+add target package0.event_file(set filename=N'XEIndexRebuild')
+with (
+            max_memory=4096 kb,
+            event_retention_mode=allow_single_event_loss,
+            max_dispatch_latency=30 seconds,
+            max_event_size=0 kb,
+            memory_partition_mode=none,
+            track_causality=on,
+            startup_state=off
+    )
+go
+</code></pre><p><img src="https://swasheck.gitlab.io/fixed/2016-11-28_transaction_log.png" alt="tlog usage"></p>
+<p>The test subject index is a nonclustered index with 37,108 pages and 1,904,887 rows on a SQL Server 2016 instance. Rebuilding this index generated 3.83 MB over 55,826 log records, while Reorganization generated 215.86 MB over 3,750,552 log records. On the same index with the same level of fragmentation, Reorganization generates many more log records (67.18 times more entries and 56.36 more data) to ship to secondaries. However, since this initial test was not done on an Availability Group, it&rsquo;s not entirely clear what impact the additional data has on the remote harden process with the synchronous replica.</p>
+<p><img src="https://swasheck.gitlab.io/fixed/2016-11-28_reorg_reads_writes.png" alt="build sequence"></p>
+<p>A big reason for the log volume disparity is how each of these operations performs its task. Where Rebuild, &ldquo;drops and re-creates the index&rdquo;, Reorganize &ldquo;defragments the leaf level of clustered and nonclustered indexes on tables and views by physically reordering the leaf-level pages to match the logical, left to right, order of the leaf nodes&rdquo; and compacts the pages <a href="https://msdn.microsoft.com/en-us/library/ms189858.aspx">MSDN</a>. Tracking the transaction log and page reads using our event session, we can see the engine start reading index pages and read sequentially through the pages. It periodically opens a system transaction (seen in the <code>transaction_log</code> event) to write out the pages in their l-t-r sequence, confirming the MSDN documentation.</p>
+<p><img src="https://swasheck.gitlab.io/fixed/2016-11-28_distinct_threads.png" alt="distinct threads"></p>
+<p>Finally, the other claim that we need to verify is that Reorganize is a single-threaded operation, while Rebuild can be parallel. It is possible to verify the claim that Reorganize is a single-threaded operation a few different ways. The first way I verified this was by counting the number of distinct system threads throughout the process. Additionally, I used the <code>degree_of_parallelism</code> event, but it was never fired for the Reorganize operation. The Rebuild operation did fire the <code>degree_of_parallelism</code> event with DOP of 4.</p>
+<p>We&rsquo;ve proven Tim Chapman&rsquo;s presentation to be true and accurate and have confirmed at least one bit of information from the MSDN documentation. However, there are many improvements to the experiment in question. My Adventures in Index Maintenance-Land have begun.</p>
+
+        </article>
+    </div>
+
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+            &copy; 2022, swasheck
+        
+        <br>
+        Powered by <a href="https://gohugo.io/" target="_blank">Hugo</a>
+        and <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+    </small>
+</footer>
+</body>
+</html>

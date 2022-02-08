@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>tsql tuesday on stochasmos</title>
+    <link>https://swasheck.github.io/tags/tsql-tuesday/</link>
+    <description>Recent content in tsql tuesday on stochasmos</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2022, swasheck</copyright>
+    <lastBuildDate>Tue, 11 Jan 2022 13:25:41 -0700</lastBuildDate><atom:link href="https://swasheck.github.io/tags/tsql-tuesday/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>tsql tuesday: preconceived notions (a confession)</title>
+      <link>https://swasheck.github.io/post/tsql-tuesday-preconceived/</link>
+      <pubDate>Tue, 11 Jan 2022 13:25:41 -0700</pubDate>
+      
+      <guid>https://swasheck.github.io/post/tsql-tuesday-preconceived/</guid>
+      <description>every now and then i get motivated to type a lot of words that likely make no sense. it&amp;rsquo;s usually an interesting t-sql tuesday topic, and today is no exception. thank you to andy yun (b|t) for the inspiration. this one&amp;rsquo;s short because i dont have the emotional capacity to write a ton, but it&amp;rsquo;s something that i need to get out.
+i had a lot of preconceived notions about parenting.</description>
+    </item>
+    
+    <item>
+      <title>tsql tuesday 121: gifts</title>
+      <link>https://swasheck.github.io/post/tsql-tuesday-gifts/</link>
+      <pubDate>Tue, 10 Dec 2019 16:40:42 -0700</pubDate>
+      
+      <guid>https://swasheck.github.io/post/tsql-tuesday-gifts/</guid>
+      <description>I&amp;rsquo;m still trying to figure myself out &amp;hellip; and I&amp;rsquo;m still a mess, but that leads me to the notion of gifts. There&amp;rsquo;s a common thread in most of these posts - they&amp;rsquo;re not material &amp;ldquo;things&amp;rdquo; and tend to find their location on family, friends, and community. It&amp;rsquo;s encouraging to hear the reverberations of the human spirit throughout the community. I&amp;rsquo;d originally wanted to post something about family &amp;hellip; to post something about those people who are closest to me.</description>
+    </item>
+    
+    <item>
+      <title>tsql tuesday: dealer&#39;s choice</title>
+      <link>https://swasheck.github.io/post/tsql-tuesday-dealers-choice/</link>
+      <pubDate>Tue, 13 Feb 2018 21:40:24 -0700</pubDate>
+      
+      <guid>https://swasheck.github.io/post/tsql-tuesday-dealers-choice/</guid>
+      <description>The blog is littered with well-intentioned series beginnings, only to see them never truly materialize because I&amp;rsquo;m on to something else. I am a researcher. I am an INTP - a mad scientist and it usually shows. That&amp;rsquo;s a long-winded way of saying, &amp;ldquo;I&amp;rsquo;ve not blogged in a long time because I&amp;rsquo;m self-conscious, suffer from a massive inferiority complex, and I&amp;rsquo;ve honestly been busy with quite a few other things.&amp;rdquo;</description>
+    </item>
+    
+  </channel>
+</rss>
