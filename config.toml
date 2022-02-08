@@ -1,4 +1,4 @@
-baseURL = 'http://example.org/'
+baseURL = 'https://swasheck.github.io'
 languageCode = 'en-us'
 title = 'stochasmos'
 theme = "devise"
