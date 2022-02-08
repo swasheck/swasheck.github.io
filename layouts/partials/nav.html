@@ -1,0 +1,8 @@
+<div id="sitetitle"><a href="/" class="sitelink">stochasmos</a></div>
+<div id="nav-border">    
+    <ul id="nav">
+    {{ range .Site.Menus.main }} 
+      <li><a href="{{ .URL }}">{{ .Name }}</a></li>
+    {{ end }}
+    </ul>
+ </div>

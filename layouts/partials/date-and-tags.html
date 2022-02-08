@@ -1,0 +1,25 @@
+
+  {{ $dateTime := .PublishDate.Format "2006-01-02" }}
+  {{ $dateFormat := .Site.Params.dateFormat }}
+
+    <time datetime="{{ $dateTime }}">{{ .PublishDate.Format $dateFormat }}</time>
+
+
+  {{- $fallback := slice (dict "Identifier" "Categories") (dict "Identifier" "Series") (dict "Identifier" "Tags") }}
+    {{- range default $fallback .Site.Menus.meta }}
+      {{- $taxo := $.Param .Identifier }}
+      {{- if $taxo }}
+
+      {{ $name := default .Identifier .Name }}
+      {{ $link := default .Identifier .URL }}
+      
+  <span{{ if .Title }} title="{{ .Title }}"{{ end }} style="text-transform: lowercase;margin-left:25px;">{{ $name }}</span>:
+      {{- range $taxo }}
+        {{- $perma := lower (path.Join $link (urlize .)) }}
+  <a href="{{ $perma | absURL }}">{{ . }}</a>
+      {{- end }}
+    
+    {{- end }}
+  {{- end }}
+
+

@@ -1,0 +1,39 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>tags on stochasmos</title>
+		<link>/tags/</link>
+		<description>Recent content in tags on stochasmos</description>
+		<generator>Hugo 0.88.1 -- gohugo.io</generator>
+		<language>en-us</language>
+		<lastBuildDate>Tue, 11 Jan 2022 13:25:41 -0700</lastBuildDate>
+		<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+		<item>
+			<title>tsql tuesday</title>
+			<link>/tags/tsql-tuesday/</link>
+			<pubDate>Tue, 11 Jan 2022 13:25:41 -0700</pubDate>
+			<guid isPermaLink="true">/tags/tsql-tuesday/</guid>
+			<description></description>
+		</item>
+		<item>
+			<title>poetry</title>
+			<link>/tags/poetry/</link>
+			<pubDate>Sun, 13 Jan 2019 20:28:42 -0600</pubDate>
+			<guid isPermaLink="true">/tags/poetry/</guid>
+			<description></description>
+		</item>
+		<item>
+			<title>trees</title>
+			<link>/tags/trees/</link>
+			<pubDate>Sun, 13 Jan 2019 20:28:42 -0600</pubDate>
+			<guid isPermaLink="true">/tags/trees/</guid>
+			<description></description>
+		</item>
+		<item>
+			<title>life</title>
+			<link>/tags/life/</link>
+			<pubDate>Sat, 12 Jan 2019 22:14:57 -0600</pubDate>
+			<guid isPermaLink="true">/tags/life/</guid>
+			<description></description>
+		</item>
+	</channel>
+</rss>

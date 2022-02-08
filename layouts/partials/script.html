@@ -1,0 +1,38 @@
+<!-- <script>
+  function parseReviews()
+      {
+          var reviews = this.responseXML.getElementsByTagName("review");
+          console.log(reviews.length);
+          var container = document.getElementById("booklist");
+          for(var i = 0; i < reviews.length; i++) {
+              var review = reviews[i];
+              var titleNode = review.getElementsByTagName("title_without_series");
+              var link = review.getElementsByTagName("link");
+              console.log(titleNode[0].textContent.toString());
+              //started_at
+              //link
+              //small_image_url
+              //container.innerHTML += "<div>" + titleNode[0].textContent.toString() + "</div>";
+          }
+          console.log(review)
+      }
+      function getReviews() {
+        var url = "https://cors-anywhere.herokuapp.com/https://www.goodreads.com/review/list/20423841.xml?key=E1DLuag4BnVsNq1vg1T9aQ&v=2&per_page=200&shelf=read";
+        var request = new XMLHttpRequest();
+        request.addEventListener("load",parseReviews);
+        request.open('GET',url);
+        request.setRequestHeader("X-Requested-With","XMLHttpRequest");
+        request.send();      
+      }
+  </script> -->
+
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-53285917-4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-53285917-4');
+</script>

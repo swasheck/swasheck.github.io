@@ -1,0 +1,99 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>tsql tuesday on stochasmos</title>
+		<link>/tags/tsql-tuesday/</link>
+		<description>Recent content in tsql tuesday on stochasmos</description>
+		<generator>Hugo 0.88.1 -- gohugo.io</generator>
+		<language>en-us</language>
+		<lastBuildDate>Tue, 11 Jan 2022 13:25:41 -0700</lastBuildDate>
+		<atom:link href="/tags/tsql-tuesday/index.xml" rel="self" type="application/rss+xml" />
+		<item>
+			<title>tsql tuesday: preconceived notions (a confession)</title>
+			<link>/tsql-tuesday-146/</link>
+			<pubDate>Tue, 11 Jan 2022 13:25:41 -0700</pubDate>
+			<guid isPermaLink="true">/tsql-tuesday-146/</guid>
+			<description>&lt;p&gt;&lt;image src=&#34;https://sqlbek.files.wordpress.com/2014/05/tsql2sday150x150.jpg&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;every now and then i get motivated to type a lot of words that likely make no sense. it&amp;rsquo;s usually an interesting t-sql tuesday topic, and today is no exception. thank you to andy yun (&lt;a href=&#34;https://sqlbek.wordpress.com/&#34; target=&#34;_blank&#34;&gt;b&lt;/a&gt;|&lt;a href=&#34;twitter.com/sqlbek/&#34; target=&#34;_blank&#34;&gt;t&lt;/a&gt;) for the inspiration. this one&amp;rsquo;s short because i dont have the emotional capacity to write a ton, but it&amp;rsquo;s something that i need to get out.&lt;/p&gt;
+&lt;p&gt;i had a lot of preconceived notions about parenting. i thought less of parents whose kids made poor choices. the kid screaming on the airplane was the sign of an unprepared (at best), or emotionally abusive (at worst), or some shade of gray in between, parent. i honestly thought that, for sure, with the right amount of love, communication skills, and the undying commitment to stay married through thick and thin, that we would set up our kids for success and healthiness in their lives. that they would see us as parents who cared. as people they could trust &amp;hellip; who sacrifice nearly everything for their good. essentially, i lost sight of nature and counted on the sheer force of will of my, no &lt;em&gt;our&lt;/em&gt;, nurture.&lt;/p&gt;
+&lt;p&gt;now, as a parent of biological, teenage offspring, and an adopted five year-old, i&amp;rsquo;ve come to realize how much of a factor nature truly is. kids making poor choices? that&amp;rsquo;s a right-of-passage. or maybe it&amp;rsquo;s a brain chemistry situation that lends itself to a proclivity to depression or anxiety. kid screaming on the plane? maybe the parents are just gutting it out with their kid who&amp;rsquo;s on the autism spectrum and they&amp;rsquo;re heading on a much-needed family vacation to get some relief. or perhaps they&amp;rsquo;re en route to a healthcare provider that specializes in a treatment that they need.&lt;/p&gt;
+&lt;p&gt;the thing is, you never really know how what&amp;rsquo;s going on with kids will manifest itself, nature, nurture, or something else.&lt;/p&gt;
+&lt;p&gt;to all the parents i&amp;rsquo;ve judged in my mind, or under my breath. i&amp;rsquo;m sorry. you were unknowing victims of my own preconceived notions.&lt;/p&gt;
+</description>
+		</item>
+		<item>
+			<title>tsql tuesday 121: gifts</title>
+			<link>/tsql-tuesday-gifts/</link>
+			<pubDate>Tue, 10 Dec 2019 16:40:42 -0700</pubDate>
+			<guid isPermaLink="true">/tsql-tuesday-gifts/</guid>
+			<description>&lt;p&gt;&lt;img src=&#34;http://tsqltuesday.com/wp-content/uploads/2017/02/tsqltuesday.jpg&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;m still trying to figure myself out &amp;hellip; and &lt;a href=&#34;http://swasheck.github.io/posts/tsql-tuesday-dealers-choice/&#34; target=&#34;_blank&#34;&gt;I&amp;rsquo;m still a mess&lt;/a&gt;, but that leads me to the notion of gifts. There&amp;rsquo;s a common thread in most of these posts - they&amp;rsquo;re not material &amp;ldquo;things&amp;rdquo; and tend to find their location on family, friends, and community. It&amp;rsquo;s encouraging to hear the reverberations of the human spirit throughout the community. I&amp;rsquo;d originally wanted to post something about family &amp;hellip; to post something about those people who are closest to me. As I thought about it, though, I&amp;rsquo;ve been given some tremendous gifts this year that sit somewhere in that intersection &amp;ldquo;things&amp;rdquo; and &amp;ldquo;people&amp;rdquo; - maybe they&amp;rsquo;re &amp;ldquo;experiences&amp;rdquo;.&lt;/p&gt;
+&lt;p&gt;It was a tough year, and I&amp;rsquo;m going to start with last year at this time: 365 days ago.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;364 days ago &lt;em&gt;today&lt;/em&gt;, my son had a conversation with a close acquaintance (but not quite friend) who made some extreme comments. It was fairly common for this boy to make extreme comments and exhibit extreme behavior. Upon reflection, this time was different. Relationships were challenged. My son didn&amp;rsquo;t know what to do except attempt to keep the peace between this boy and his best friend. The boy went to football practice.&lt;/li&gt;
+&lt;li&gt;363 days ago my son&amp;rsquo;s school was informed that this boy had died. There are still no solid details, but it&amp;rsquo;s widely speculated that this was not an accident. The dynamic tension of life is that this is the same day that my family drove 2 hours to Ft. Collins, CO to have a US court officially declare that my (now) 3 year-old was officially recognized as ours in the eyes of the United States Courts.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The gifts here are that I have been given a son who cares deeply about people around him. He cares about harmony and peace. He cares about justice. And now he cares about honoring others and their memories.&lt;/p&gt;
+&lt;p&gt;This past year I&amp;rsquo;d taken a new job. After the initial honeymoon stage, it was quickly apparent that it wasn&amp;rsquo;t a good fit for either of us. However, there were things that inhibited me from being able to move on. Because of this, I was always sad or angry. A few gifts helped me along the way &amp;hellip;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;March 30, 2019: I went to a Switchfoot concert. They&amp;rsquo;re my favorite band. Their music summarizes my worldview quite well, yet they possess something that I needed the most at the time - songs of hope. No matter how crummy things get, there&amp;rsquo;s still a big beautiful world out there with amazing, beautiful people. Life is short, I want to live it well.&lt;/li&gt;
+&lt;li&gt;May 7, 2019: A gunman opens fire in the STEM school in Highlands Ranch, CO &amp;hellip; .65 miles from my own kids&#39; school &amp;hellip; across the street from the rec center where I work out. I refuse to say that the gift was that this was not at my kids&#39; school because that trivializes the experience of the STEM families. Instead, I got to see a community rally around each other. The church where the Jeep procession was held, before Kendrick&amp;rsquo;s funeral is where I go to practice soccer with my oldest son. This was my community and, to be honest, I&amp;rsquo;d mocked it for too long. This day, and the weeks following, gave me the gift of loving my community again.&lt;/li&gt;
+&lt;li&gt;August, 2019: My wife, sensing that I was back in a desperate place, presented me with a book she&amp;rsquo;d bought and completed for me. One of my most basic needs is to be seen &amp;hellip; to be known. I&amp;rsquo;m deeply insecure and to be known and loved and &amp;ldquo;seen&amp;rdquo; at this level is life-giving. &lt;img src=&#34;/images/IMG_0083.jpg&#34; height=&#34;160&#34; width=&#34;160&#34; /&gt;&lt;/li&gt;
+&lt;li&gt;Sept 2, 2019: What luck! I got to go see Switchfoot again! This time, with my daughter. She is a lover of music and has never been to a concert in her life. Switchfoot was her first. It was a true gift to share this with her, even though she had no idea what to expect.&lt;/li&gt;
+&lt;li&gt;October, 2019: I started and finished &lt;a href=&#34;&#34; target=&#34;_blank&#34;&gt;I&amp;rsquo;ll Push You&lt;/a&gt;. Yes, it&amp;rsquo;s written by two Christian guys, and I don&amp;rsquo;t know how you feel about that. It&amp;rsquo;s not preachy, and it&amp;rsquo;s a gift to me to see that friends can be amazing. I don&amp;rsquo;t feel like I have friends - but I want to be a friend like these guys are to each other.&lt;/li&gt;
+&lt;li&gt;Nov 14, 2019: This is my birthday. I resigned from the bad fit job. I accepted a position with Infor Global. My daughter (a budding cross-country star) gifted me the experience of a 5k with her (on December 15th). My oldest son gifted me with tickets to opening night to see the conclusion of the Skywalker saga. And my wife? She gifted me with her unconditional love and acceptance. The ability to say &amp;ldquo;yes&amp;rdquo; to a new position that we hope will bring me greater mental health and joy.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;My hope is that you all find gifts in your daily lives.&lt;/p&gt;
+&lt;blockquote&gt;&lt;q&gt;I&#39;ve got one life&lt;br /&gt;
+and one love&lt;br /&gt;
+I&#39;ve got one voice,&lt;br /&gt; 
+maybe that&#39;s enough.&lt;br /&gt; 
+With one heartbeat,&lt;br /&gt; 
+two hands to give,&lt;br /&gt; 
+I&#39;ve got one shot&lt;br /&gt; 
+One life to live.&lt;/q&gt;&lt;/blockquote&gt;
+</description>
+		</item>
+		<item>
+			<title>tsql tuesday: dealer&#39;s choice</title>
+			<link>/tsql-tuesday-dealers-choice/</link>
+			<pubDate>Tue, 13 Feb 2018 21:40:24 -0700</pubDate>
+			<guid isPermaLink="true">/tsql-tuesday-dealers-choice/</guid>
+			<description>&lt;div style=&#34;float:right;clear:left;width:auto;max-width:25%;height:auto;margin:10px;&#34;&gt;&lt;img src=&#34;https://swasheck.gitlab.io/fixed/MJTuesday.png&#34; /&gt;&lt;/div&gt;
+Me? I&#39;m a mess. This blog is a mess. Half of the links don&#39;t work because I spend so much time fretting over how to create my own theme - only to find that the finished product doesn&#39;t really fit the needs I didn&#39;t realize I have. Additionally, I&#39;ve misconfigured something in the &#34;front-matter&#34; such that the static site generator doesn&#39;t detect the post content. Some people may say that I should just stick with a known quantity, like WordPress. They&#39;re probably right. However, my personality just doesn&#39;t let me do that. Call it a flaw, a quirk, or an idiosyncracy. It simply is part of who I am.
+&lt;div style=&#34;float:left;width:auto;max-width:25%;height:auto;clear:right;margin:10px;&#34;&gt;&lt;a href=&#34;https://www.personalityclub.com/personality-types/intp/&#34; target=&#34;_blank&#34;&gt;&lt;img src=&#34;https://swasheck.gitlab.io/fixed/intp-profile.png&#34; alt=&#34;INTP Infographic&#34;/&gt;&lt;/a&gt;&lt;/div&gt;
+&lt;p&gt;The blog is littered with well-intentioned series beginnings, only to see them never truly materialize because I&amp;rsquo;m on to something else. I am a researcher. I am an INTP - a mad scientist and it usually shows. That&amp;rsquo;s a long-winded way of saying, &amp;ldquo;I&amp;rsquo;ve not blogged in a long time because I&amp;rsquo;m self-conscious, suffer from a massive inferiority complex, and I&amp;rsquo;ve honestly been busy with quite a few other things.&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;So I thank Aaron Bertrand (&lt;a href=&#34;https://sqlblog.org/2018/02/06/t-sql-tuesday-99&#34; target=&#34;_blank&#34;&gt;b&lt;/a&gt;|&lt;a href=&#34;https://twitter.com/AaronBertrand&#34; target=&#34;_blank&#34;&gt;t&lt;/a&gt;) for allowing &amp;ldquo;Dealer&amp;rsquo;s Choice&amp;rdquo; for this most recent installment of T-SQL Tuesday.&lt;/p&gt;
+&lt;div style=&#34;clear:both;&#34;&gt;&lt;/div&gt;
+Because I&#39;m slowly re-integrating into the blogging world, I decided to write something about which I am passionate outside of SQL Server or tech community. 
+&lt;p&gt;So what am I passionate about? Justice. I believe that people have intrinsic value, regardless of race, nationality, personality, net worth, country of origin, or any other dimension by which we slice humanity. Specifically, I am passionate about justice for those people who exist in the margins of society: The widow. The orphan. The impoverished. The immigrant. All of humanity deserves dignity and respect.&lt;/p&gt;
+&lt;p&gt;I also believe that nature deserves our care and attention and that violations against nature will inevitably come back to harm humanity, with particular impacts on those marginalized people groups listed above. They&amp;rsquo;re uniquely forced into making short-term survival decisions, at the expense of long-term sustainability and many times that&amp;rsquo;s due to environmental violoations they&amp;rsquo;ve not committed.&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;ll admit that I&amp;rsquo;m not perfect - especially in treating people with dignity and respect. The person who cut me off in traffic. The person who was an outsourcing backfill for a laid-off friend of mine. The NFL referee who clearly hates my team. I could be so much better in this regard, and yet it is a deeply ingrained passion for me.&lt;/p&gt;
+&lt;p&gt;Not only is this a personal passion, but it is one that has become a family passion. For her most recent birthday, my daughter&amp;rsquo;s party was to assemble survival bags for dozens our city&amp;rsquo;s substantial homeless population. My son has organized fundraisers for African charities. My wife works with women and girls who have been rescued from sex trafficking, helping them to take the first steps toward healing from emotional and physical trauma. I am so thankful for having a spouse and family who are so bent on effusing charity and justice. That&amp;rsquo;s where my passion arrives: justice. I want to see biased and/or oppressive systems changed. In fact, over the last twelve months I&amp;rsquo;d suffered something of an existential crisis which nearly led me out of the database and technology communities. I&amp;rsquo;m still here, though. I also hate talking about myself, so I&amp;rsquo;m not really planning on sharing more about what I have done. Suffice it to say, I&amp;rsquo;m still figuring it out and chasing that passion.&lt;/p&gt;
+&lt;p&gt;This isn&amp;rsquo;t just about me, though. This can also be about you, if you want it to be.&lt;/p&gt;
+&lt;p&gt;How?&lt;/p&gt;
+&lt;h3 id=&#34;share&#34;&gt;Share&lt;/h3&gt;
+&lt;p&gt;Consider sharing what you have with others near you, leveraging social media outlets like &lt;a href=&#34;https://nextdoor.com/&#34; target=&#34;_blank&#34;&gt;Nextdoor&lt;/a&gt; to facilitate local human connection. Your friendship may be the starting point for someone who desperately craves human interaction.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Have extra food that you&amp;rsquo;re not sure you&amp;rsquo;ll use? Check out &lt;a href=&#34;https://olioex.com/&#34; target=&#34;_blank&#34;&gt;OLIO&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Make good purchasing decisions with the &lt;a href=&#34;https://itunes.apple.com/us/app/better-world-shopper/id318369598?mt=8&#34; target=&#34;_blank&#34;&gt;Better World Shopper&lt;/a&gt; app (or &lt;a href=&#34;https://betterworldshopper.org/&#34; target=&#34;_blank&#34;&gt; website&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;volunteer&#34;&gt;Volunteer&lt;/h3&gt;
+&lt;p&gt;It&amp;rsquo;s like sharing, but it doesn&amp;rsquo;t necessarily involve your things or your money. Tutor or mentor students who need someone to believe in them. You have skills. You have intelligence. They have skills. They have dreams. They have intelligence. Bring those together and invest in something bigger than making sure you&amp;rsquo;ve shaved 25 milliseconds off of that secondary data file read. We have &amp;ldquo;alternative high schools&amp;rdquo; in metro Denver that give kids who have been labeled &amp;ldquo;at-risk&amp;rdquo; a final shot at getting a high school diploma. Maybe you do too.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Serve at a soup kitchen.&lt;/li&gt;
+&lt;li&gt;Mentor a kid.&lt;/li&gt;
+&lt;li&gt;Coach a sports team with kids from the margins.&lt;/li&gt;
+&lt;li&gt;Find someone who is working against racial, humanitarian, socio-economic, immigration, or environmental related injustices and set up a standing meeting with them - and buy them coffee/lunch/dinner.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;read&#34;&gt;Read&lt;/h3&gt;
+&lt;p&gt;Read and be inspired. Read and be motivated.:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Amazon: &lt;a href=&#34;https://www.amazon.com/Hand-Mouth-Living-Bootstrap-America/dp/0425277976/ref=sr_1_1?ie=UTF8&amp;qid=1518562778&amp;sr=8-1&amp;keywords=hand+to+mouth&#34; target=&#34;_blank&#34;&gt;Hand To Mouth: Living In Bootstrap America&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Amazon: &lt;a href=&#34;https://www.amazon.com/Half-Sky-Oppression-Opportunity-Worldwide/dp/0307387097/ref=sr_1_1?s=books&amp;ie=UTF8&amp;qid=1518562860&amp;sr=1-1&amp;keywords=half+the+sky&#34; target=&#34;_blank&#34;&gt;Half The Sky&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;New York Times: &lt;a href=&#34;https://www.nytimes.com/2018/01/24/opinion/poverty-united-states.html&#34; target=&#34;_blank&#34;&gt;The U.S. Can No Longer Hide From Its Deep Poverty Problem&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I&amp;rsquo;m just spitballing here. Only you know what you can do.&lt;/p&gt;
+</description>
+		</item>
+	</channel>
+</rss>

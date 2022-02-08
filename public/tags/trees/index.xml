@@ -1,0 +1,30 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>trees on stochasmos</title>
+		<link>/tags/trees/</link>
+		<description>Recent content in trees on stochasmos</description>
+		<generator>Hugo 0.88.1 -- gohugo.io</generator>
+		<language>en-us</language>
+		<lastBuildDate>Sun, 13 Jan 2019 20:28:42 -0600</lastBuildDate>
+		<atom:link href="/tags/trees/index.xml" rel="self" type="application/rss+xml" />
+		<item>
+			<title>Trees by Joyce Kilmer</title>
+			<link>/trees-by-joyce-kilmer/</link>
+			<pubDate>Sun, 13 Jan 2019 20:28:42 -0600</pubDate>
+			<guid isPermaLink="true">/trees-by-joyce-kilmer/</guid>
+			<description>&lt;p&gt;I think that I shall never see&lt;br&gt;
+A poem lovely as a tree.&lt;/p&gt;
+&lt;p&gt;A tree whose hungry mouth is prest&lt;br&gt;
+Against the earth’s sweet flowing breast;&lt;/p&gt;
+&lt;p&gt;A tree that looks at God all day,&lt;br&gt;
+And lifts her leafy arms to pray;&lt;/p&gt;
+&lt;p&gt;A tree that may in Summer wear&lt;br&gt;
+A nest of robins in her hair;&lt;/p&gt;
+&lt;p&gt;Upon whose bosom snow has lain;&lt;br&gt;
+Who intimately lives with rain.&lt;/p&gt;
+&lt;p&gt;Poems are made by fools like me,&lt;br&gt;
+But only God can make a tree.&lt;/p&gt;
+</description>
+		</item>
+	</channel>
+</rss>
