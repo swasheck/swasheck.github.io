@@ -2,53 +2,53 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>/blog/</loc>
+    <loc>https://swasheck.netlify.com/blog/</loc>
     <lastmod>2022-01-11T13:25:41-07:00</lastmod>
   </url><url>
-    <loc>/categories/</loc>
+    <loc>https://swasheck.netlify.com/categories/</loc>
     <lastmod>2022-01-11T13:25:41-07:00</lastmod>
   </url><url>
-    <loc>/categories/personal/</loc>
+    <loc>https://swasheck.netlify.com/categories/personal/</loc>
     <lastmod>2022-01-11T13:25:41-07:00</lastmod>
   </url><url>
-    <loc>/</loc>
+    <loc>https://swasheck.netlify.com/</loc>
     <lastmod>2022-01-11T13:25:41-07:00</lastmod>
   </url><url>
-    <loc>/tags/</loc>
+    <loc>https://swasheck.netlify.com/tags/</loc>
     <lastmod>2022-01-11T13:25:41-07:00</lastmod>
   </url><url>
-    <loc>/categories/technology/</loc>
+    <loc>https://swasheck.netlify.com/categories/technology/</loc>
     <lastmod>2022-01-11T13:25:41-07:00</lastmod>
   </url><url>
-    <loc>/tags/tsql-tuesday/</loc>
+    <loc>https://swasheck.netlify.com/tags/tsql-tuesday/</loc>
     <lastmod>2022-01-11T13:25:41-07:00</lastmod>
   </url><url>
-    <loc>/tsql-tuesday-146/</loc>
+    <loc>https://swasheck.netlify.com/tsql-tuesday-146/</loc>
     <lastmod>2022-01-11T13:25:41-07:00</lastmod>
   </url><url>
-    <loc>/tsql-tuesday-gifts/</loc>
+    <loc>https://swasheck.netlify.com/tsql-tuesday-gifts/</loc>
     <lastmod>2019-12-10T16:40:42-07:00</lastmod>
   </url><url>
-    <loc>/tags/poetry/</loc>
+    <loc>https://swasheck.netlify.com/tags/poetry/</loc>
     <lastmod>2019-01-13T20:28:42-06:00</lastmod>
   </url><url>
-    <loc>/tags/trees/</loc>
+    <loc>https://swasheck.netlify.com/tags/trees/</loc>
     <lastmod>2019-01-13T20:28:42-06:00</lastmod>
   </url><url>
-    <loc>/trees-by-joyce-kilmer/</loc>
+    <loc>https://swasheck.netlify.com/trees-by-joyce-kilmer/</loc>
     <lastmod>2019-01-13T20:28:42-06:00</lastmod>
   </url><url>
-    <loc>/if-by-rudyard-kipling/</loc>
+    <loc>https://swasheck.netlify.com/if-by-rudyard-kipling/</loc>
     <lastmod>2019-01-12T22:14:57-06:00</lastmod>
   </url><url>
-    <loc>/tags/life/</loc>
+    <loc>https://swasheck.netlify.com/tags/life/</loc>
     <lastmod>2019-01-12T22:14:57-06:00</lastmod>
   </url><url>
-    <loc>/tsql-tuesday-dealers-choice/</loc>
+    <loc>https://swasheck.netlify.com/tsql-tuesday-dealers-choice/</loc>
     <lastmod>2018-02-13T21:40:24-07:00</lastmod>
   </url><url>
-    <loc>/books/</loc>
+    <loc>https://swasheck.netlify.com/books/</loc>
   </url><url>
-    <loc>/series/</loc>
+    <loc>https://swasheck.netlify.com/series/</loc>
   </url>
 </urlset>

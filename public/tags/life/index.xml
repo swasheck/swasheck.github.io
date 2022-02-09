@@ -1,17 +1,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title>life on stochasmos</title>
-		<link>/tags/life/</link>
+		<link>https://swasheck.netlify.com/tags/life/</link>
 		<description>Recent content in life on stochasmos</description>
 		<generator>Hugo 0.88.1 -- gohugo.io</generator>
 		<language>en-us</language>
 		<lastBuildDate>Sat, 12 Jan 2019 22:14:57 -0600</lastBuildDate>
-		<atom:link href="/tags/life/index.xml" rel="self" type="application/rss+xml" />
+		<atom:link href="https://swasheck.netlify.com/tags/life/index.xml" rel="self" type="application/rss+xml" />
 		<item>
 			<title>If by Rudyard Kipling</title>
-			<link>/if-by-rudyard-kipling/</link>
+			<link>https://swasheck.netlify.com/if-by-rudyard-kipling/</link>
 			<pubDate>Sat, 12 Jan 2019 22:14:57 -0600</pubDate>
-			<guid isPermaLink="true">/if-by-rudyard-kipling/</guid>
+			<guid isPermaLink="true">https://swasheck.netlify.com/if-by-rudyard-kipling/</guid>
 			<description>&lt;p&gt;If you can keep your head when all about you&lt;br&gt;
 Are losing theirs and blaming it on you,&lt;br&gt;
 If you can trust yourself when all men doubt you,&lt;br&gt;

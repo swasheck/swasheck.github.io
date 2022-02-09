@@ -1,17 +1,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title>trees on stochasmos</title>
-		<link>/tags/trees/</link>
+		<link>https://swasheck.netlify.com/tags/trees/</link>
 		<description>Recent content in trees on stochasmos</description>
 		<generator>Hugo 0.88.1 -- gohugo.io</generator>
 		<language>en-us</language>
 		<lastBuildDate>Sun, 13 Jan 2019 20:28:42 -0600</lastBuildDate>
-		<atom:link href="/tags/trees/index.xml" rel="self" type="application/rss+xml" />
+		<atom:link href="https://swasheck.netlify.com/tags/trees/index.xml" rel="self" type="application/rss+xml" />
 		<item>
 			<title>Trees by Joyce Kilmer</title>
-			<link>/trees-by-joyce-kilmer/</link>
+			<link>https://swasheck.netlify.com/trees-by-joyce-kilmer/</link>
 			<pubDate>Sun, 13 Jan 2019 20:28:42 -0600</pubDate>
-			<guid isPermaLink="true">/trees-by-joyce-kilmer/</guid>
+			<guid isPermaLink="true">https://swasheck.netlify.com/trees-by-joyce-kilmer/</guid>
 			<description>&lt;p&gt;I think that I shall never see&lt;br&gt;
 A poem lovely as a tree.&lt;/p&gt;
 &lt;p&gt;A tree whose hungry mouth is prest&lt;br&gt;

@@ -1,24 +1,24 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title>categories on stochasmos</title>
-		<link>/categories/</link>
+		<link>https://swasheck.netlify.com/categories/</link>
 		<description>Recent content in categories on stochasmos</description>
 		<generator>Hugo 0.88.1 -- gohugo.io</generator>
 		<language>en-us</language>
 		<lastBuildDate>Tue, 11 Jan 2022 13:25:41 -0700</lastBuildDate>
-		<atom:link href="/categories/index.xml" rel="self" type="application/rss+xml" />
+		<atom:link href="https://swasheck.netlify.com/categories/index.xml" rel="self" type="application/rss+xml" />
 		<item>
 			<title>personal</title>
-			<link>/categories/personal/</link>
+			<link>https://swasheck.netlify.com/categories/personal/</link>
 			<pubDate>Tue, 11 Jan 2022 13:25:41 -0700</pubDate>
-			<guid isPermaLink="true">/categories/personal/</guid>
+			<guid isPermaLink="true">https://swasheck.netlify.com/categories/personal/</guid>
 			<description></description>
 		</item>
 		<item>
 			<title>technology</title>
-			<link>/categories/technology/</link>
+			<link>https://swasheck.netlify.com/categories/technology/</link>
 			<pubDate>Tue, 11 Jan 2022 13:25:41 -0700</pubDate>
-			<guid isPermaLink="true">/categories/technology/</guid>
+			<guid isPermaLink="true">https://swasheck.netlify.com/categories/technology/</guid>
 			<description></description>
 		</item>
 	</channel>

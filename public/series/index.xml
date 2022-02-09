@@ -1,10 +1,10 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title>series on stochasmos</title>
-		<link>/series/</link>
+		<link>https://swasheck.netlify.com/series/</link>
 		<description>Recent content in series on stochasmos</description>
 		<generator>Hugo 0.88.1 -- gohugo.io</generator>
 		<language>en-us</language>
-		<atom:link href="/series/index.xml" rel="self" type="application/rss+xml" />
+		<atom:link href="https://swasheck.netlify.com/series/index.xml" rel="self" type="application/rss+xml" />
 	</channel>
 </rss>

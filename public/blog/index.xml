@@ -1,17 +1,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title>blog on stochasmos</title>
-		<link>/blog/</link>
+		<link>https://swasheck.netlify.com/blog/</link>
 		<description>Recent content in blog on stochasmos</description>
 		<generator>Hugo 0.88.1 -- gohugo.io</generator>
 		<language>en-us</language>
 		<lastBuildDate>Tue, 11 Jan 2022 13:25:41 -0700</lastBuildDate>
-		<atom:link href="/blog/index.xml" rel="self" type="application/rss+xml" />
+		<atom:link href="https://swasheck.netlify.com/blog/index.xml" rel="self" type="application/rss+xml" />
 		<item>
 			<title>tsql tuesday: preconceived notions (a confession)</title>
-			<link>/tsql-tuesday-146/</link>
+			<link>https://swasheck.netlify.com/tsql-tuesday-146/</link>
 			<pubDate>Tue, 11 Jan 2022 13:25:41 -0700</pubDate>
-			<guid isPermaLink="true">/tsql-tuesday-146/</guid>
+			<guid isPermaLink="true">https://swasheck.netlify.com/tsql-tuesday-146/</guid>
 			<description>&lt;p&gt;&lt;image src=&#34;https://sqlbek.files.wordpress.com/2014/05/tsql2sday150x150.jpg&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;every now and then i get motivated to type a lot of words that likely make no sense. it&amp;rsquo;s usually an interesting t-sql tuesday topic, and today is no exception. thank you to andy yun (&lt;a href=&#34;https://sqlbek.wordpress.com/&#34; target=&#34;_blank&#34;&gt;b&lt;/a&gt;|&lt;a href=&#34;twitter.com/sqlbek/&#34; target=&#34;_blank&#34;&gt;t&lt;/a&gt;) for the inspiration. this one&amp;rsquo;s short because i dont have the emotional capacity to write a ton, but it&amp;rsquo;s something that i need to get out.&lt;/p&gt;
 &lt;p&gt;i had a lot of preconceived notions about parenting. i thought less of parents whose kids made poor choices. the kid screaming on the airplane was the sign of an unprepared (at best), or emotionally abusive (at worst), or some shade of gray in between, parent. i honestly thought that, for sure, with the right amount of love, communication skills, and the undying commitment to stay married through thick and thin, that we would set up our kids for success and healthiness in their lives. that they would see us as parents who cared. as people they could trust &amp;hellip; who sacrifice nearly everything for their good. essentially, i lost sight of nature and counted on the sheer force of will of my, no &lt;em&gt;our&lt;/em&gt;, nurture.&lt;/p&gt;
@@ -22,9 +22,9 @@
 		</item>
 		<item>
 			<title>tsql tuesday 121: gifts</title>
-			<link>/tsql-tuesday-gifts/</link>
+			<link>https://swasheck.netlify.com/tsql-tuesday-gifts/</link>
 			<pubDate>Tue, 10 Dec 2019 16:40:42 -0700</pubDate>
-			<guid isPermaLink="true">/tsql-tuesday-gifts/</guid>
+			<guid isPermaLink="true">https://swasheck.netlify.com/tsql-tuesday-gifts/</guid>
 			<description>&lt;p&gt;&lt;img src=&#34;http://tsqltuesday.com/wp-content/uploads/2017/02/tsqltuesday.jpg&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;I&amp;rsquo;m still trying to figure myself out &amp;hellip; and &lt;a href=&#34;http://swasheck.github.io/posts/tsql-tuesday-dealers-choice/&#34; target=&#34;_blank&#34;&gt;I&amp;rsquo;m still a mess&lt;/a&gt;, but that leads me to the notion of gifts. There&amp;rsquo;s a common thread in most of these posts - they&amp;rsquo;re not material &amp;ldquo;things&amp;rdquo; and tend to find their location on family, friends, and community. It&amp;rsquo;s encouraging to hear the reverberations of the human spirit throughout the community. I&amp;rsquo;d originally wanted to post something about family &amp;hellip; to post something about those people who are closest to me. As I thought about it, though, I&amp;rsquo;ve been given some tremendous gifts this year that sit somewhere in that intersection &amp;ldquo;things&amp;rdquo; and &amp;ldquo;people&amp;rdquo; - maybe they&amp;rsquo;re &amp;ldquo;experiences&amp;rdquo;.&lt;/p&gt;
 &lt;p&gt;It was a tough year, and I&amp;rsquo;m going to start with last year at this time: 365 days ago.&lt;/p&gt;
@@ -37,7 +37,7 @@
 &lt;ul&gt;
 &lt;li&gt;March 30, 2019: I went to a Switchfoot concert. They&amp;rsquo;re my favorite band. Their music summarizes my worldview quite well, yet they possess something that I needed the most at the time - songs of hope. No matter how crummy things get, there&amp;rsquo;s still a big beautiful world out there with amazing, beautiful people. Life is short, I want to live it well.&lt;/li&gt;
 &lt;li&gt;May 7, 2019: A gunman opens fire in the STEM school in Highlands Ranch, CO &amp;hellip; .65 miles from my own kids&#39; school &amp;hellip; across the street from the rec center where I work out. I refuse to say that the gift was that this was not at my kids&#39; school because that trivializes the experience of the STEM families. Instead, I got to see a community rally around each other. The church where the Jeep procession was held, before Kendrick&amp;rsquo;s funeral is where I go to practice soccer with my oldest son. This was my community and, to be honest, I&amp;rsquo;d mocked it for too long. This day, and the weeks following, gave me the gift of loving my community again.&lt;/li&gt;
-&lt;li&gt;August, 2019: My wife, sensing that I was back in a desperate place, presented me with a book she&amp;rsquo;d bought and completed for me. One of my most basic needs is to be seen &amp;hellip; to be known. I&amp;rsquo;m deeply insecure and to be known and loved and &amp;ldquo;seen&amp;rdquo; at this level is life-giving. &lt;img src=&#34;/images/IMG_0083.jpg&#34; height=&#34;160&#34; width=&#34;160&#34; /&gt;&lt;/li&gt;
+&lt;li&gt;August, 2019: My wife, sensing that I was back in a desperate place, presented me with a book she&amp;rsquo;d bought and completed for me. One of my most basic needs is to be seen &amp;hellip; to be known. I&amp;rsquo;m deeply insecure and to be known and loved and &amp;ldquo;seen&amp;rdquo; at this level is life-giving. &lt;img src=&#34;https://swasheck.netlify.com/images/IMG_0083.jpg&#34; height=&#34;160&#34; width=&#34;160&#34; /&gt;&lt;/li&gt;
 &lt;li&gt;Sept 2, 2019: What luck! I got to go see Switchfoot again! This time, with my daughter. She is a lover of music and has never been to a concert in her life. Switchfoot was her first. It was a true gift to share this with her, even though she had no idea what to expect.&lt;/li&gt;
 &lt;li&gt;October, 2019: I started and finished &lt;a href=&#34;&#34; target=&#34;_blank&#34;&gt;I&amp;rsquo;ll Push You&lt;/a&gt;. Yes, it&amp;rsquo;s written by two Christian guys, and I don&amp;rsquo;t know how you feel about that. It&amp;rsquo;s not preachy, and it&amp;rsquo;s a gift to me to see that friends can be amazing. I don&amp;rsquo;t feel like I have friends - but I want to be a friend like these guys are to each other.&lt;/li&gt;
 &lt;li&gt;Nov 14, 2019: This is my birthday. I resigned from the bad fit job. I accepted a position with Infor Global. My daughter (a budding cross-country star) gifted me the experience of a 5k with her (on December 15th). My oldest son gifted me with tickets to opening night to see the conclusion of the Skywalker saga. And my wife? She gifted me with her unconditional love and acceptance. The ability to say &amp;ldquo;yes&amp;rdquo; to a new position that we hope will bring me greater mental health and joy.&lt;/li&gt;
@@ -55,9 +55,9 @@ One life to live.&lt;/q&gt;&lt;/blockquote&gt;
 		</item>
 		<item>
 			<title>Trees by Joyce Kilmer</title>
-			<link>/trees-by-joyce-kilmer/</link>
+			<link>https://swasheck.netlify.com/trees-by-joyce-kilmer/</link>
 			<pubDate>Sun, 13 Jan 2019 20:28:42 -0600</pubDate>
-			<guid isPermaLink="true">/trees-by-joyce-kilmer/</guid>
+			<guid isPermaLink="true">https://swasheck.netlify.com/trees-by-joyce-kilmer/</guid>
 			<description>&lt;p&gt;I think that I shall never see&lt;br&gt;
 A poem lovely as a tree.&lt;/p&gt;
 &lt;p&gt;A tree whose hungry mouth is prest&lt;br&gt;
@@ -74,9 +74,9 @@ But only God can make a tree.&lt;/p&gt;
 		</item>
 		<item>
 			<title>If by Rudyard Kipling</title>
-			<link>/if-by-rudyard-kipling/</link>
+			<link>https://swasheck.netlify.com/if-by-rudyard-kipling/</link>
 			<pubDate>Sat, 12 Jan 2019 22:14:57 -0600</pubDate>
-			<guid isPermaLink="true">/if-by-rudyard-kipling/</guid>
+			<guid isPermaLink="true">https://swasheck.netlify.com/if-by-rudyard-kipling/</guid>
 			<description>&lt;p&gt;If you can keep your head when all about you&lt;br&gt;
 Are losing theirs and blaming it on you,&lt;br&gt;
 If you can trust yourself when all men doubt you,&lt;br&gt;
@@ -113,9 +113,9 @@ And—which is more—you’ll be a Man, my son!&lt;/p&gt;
 		</item>
 		<item>
 			<title>tsql tuesday: dealer&#39;s choice</title>
-			<link>/tsql-tuesday-dealers-choice/</link>
+			<link>https://swasheck.netlify.com/tsql-tuesday-dealers-choice/</link>
 			<pubDate>Tue, 13 Feb 2018 21:40:24 -0700</pubDate>
-			<guid isPermaLink="true">/tsql-tuesday-dealers-choice/</guid>
+			<guid isPermaLink="true">https://swasheck.netlify.com/tsql-tuesday-dealers-choice/</guid>
 			<description>&lt;div style=&#34;float:right;clear:left;width:auto;max-width:25%;height:auto;margin:10px;&#34;&gt;&lt;img src=&#34;https://swasheck.gitlab.io/fixed/MJTuesday.png&#34; /&gt;&lt;/div&gt;
 Me? I&#39;m a mess. This blog is a mess. Half of the links don&#39;t work because I spend so much time fretting over how to create my own theme - only to find that the finished product doesn&#39;t really fit the needs I didn&#39;t realize I have. Additionally, I&#39;ve misconfigured something in the &#34;front-matter&#34; such that the static site generator doesn&#39;t detect the post content. Some people may say that I should just stick with a known quantity, like WordPress. They&#39;re probably right. However, my personality just doesn&#39;t let me do that. Call it a flaw, a quirk, or an idiosyncracy. It simply is part of who I am.
 &lt;div style=&#34;float:left;width:auto;max-width:25%;height:auto;clear:right;margin:10px;&#34;&gt;&lt;a href=&#34;https://www.personalityclub.com/personality-types/intp/&#34; target=&#34;_blank&#34;&gt;&lt;img src=&#34;https://swasheck.gitlab.io/fixed/intp-profile.png&#34; alt=&#34;INTP Infographic&#34;/&gt;&lt;/a&gt;&lt;/div&gt;

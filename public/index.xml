@@ -1,24 +1,24 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title>stochasmos</title>
-		<link>/</link>
+		<link>https://swasheck.netlify.com/</link>
 		<description>Recent content on stochasmos</description>
 		<generator>Hugo 0.88.1 -- gohugo.io</generator>
 		<language>en-us</language>
 		<lastBuildDate>Tue, 11 Jan 2022 13:25:41 -0700</lastBuildDate>
-		<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+		<atom:link href="https://swasheck.netlify.com/index.xml" rel="self" type="application/rss+xml" />
 		<item>
 			<title>blog</title>
-			<link>/blog/</link>
+			<link>https://swasheck.netlify.com/blog/</link>
 			<pubDate>Tue, 11 Jan 2022 13:25:41 -0700</pubDate>
-			<guid isPermaLink="true">/blog/</guid>
+			<guid isPermaLink="true">https://swasheck.netlify.com/blog/</guid>
 			<description></description>
 		</item>
 		<item>
 			<title>books</title>
-			<link>/books/</link>
+			<link>https://swasheck.netlify.com/books/</link>
 			<pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-			<guid isPermaLink="true">/books/</guid>
+			<guid isPermaLink="true">https://swasheck.netlify.com/books/</guid>
 			<description>&lt;p&gt;here are some books&lt;/p&gt;
 </description>
 		</item>
