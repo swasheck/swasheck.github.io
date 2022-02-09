@@ -1,4 +1,4 @@
-baseURL = "/"
+baseURL = "https://swasheck.netlify.com"
 languageCode = "en-us"
 title = "stochasmos"
 
